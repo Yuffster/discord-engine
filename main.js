@@ -1,0 +1,74 @@
+// This is now out of date, put changes in the main server engine at the front. 
+require.paths.push('./');
+require('lib/mootools').apply(GLOBAL);
+require('engine/engine');
+var net = require('net');
+sys = require('sys');
+
+var server = net.createServer(function (stream) {
+
+    stream.on('connect', function () {
+		stream.write("What is your name?\r\n");
+		sys.puts("User connected ("+stream.remoteAddress+")");
+	});
+
+	var closure = null;
+	stream.on('data', function (data) {
+		if (!closure) closure = handlePlayer(new String(data).trim().split(' ')[0], stream);
+		if (!closure) stream.write("Please try a different name: ");
+	}); 
+
+	stream.on('end', function () {
+		stream.write('goodbye\r\n');
+		stream.end();
+	});
+
+});
+
+log_error = function(message) {
+	sys.puts("ERROR: "+message);
+}
+
+GLOBAL.onerror = log_error;
+
+world = new World('discoworld');
+
+handlePlayer = function(playerName, stream) {
+	
+	if (playerName == 'male' || playerName == 'boy') return false;
+
+	if (playerName.match(/\W|\d/)) {
+		stream.write("Letters only, please.");
+	}
+
+	if (world.getPlayer(playerName)) {
+		stream.write("Sorry, that name is already taken.");
+		return false;
+	}
+
+	var player = new Player(playerName);
+
+	player.addEvent('output', function(message) {
+		stream.write(message+"\r\n");
+	});
+
+	stream.on('data', function(data) {
+		try {
+			player.onInput(new String(data).trim());
+		} catch(e) {
+			log_error(e);
+		}
+	});
+
+	try {
+		if (!player.enterWorld(world)) return false;
+		player.send("Hi there, "+player.get('name')+"!");
+    player.send("Are you a 'boy' or a 'girl' dancer?");
+		return true;
+	} catch (e) {
+		log_error(e);
+	}
+
+};
+
+server.listen(8000);
