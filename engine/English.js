@@ -45,7 +45,7 @@ English = new Class({
 Number.implement({
 
 	/** 
-	 * Converts any number up to one trillion into an English phrase.
+	 * Converts a number up to whatever comes after the trillions into English.
 	 */
 	toWord: function() {
 		var n = this;
@@ -74,7 +74,6 @@ Number.implement({
 		var principle = Math.floor(n/pow);
 		var remainder = n%pow;
 		return principle.toWord()+' '+places[d-1]+' '+remainder.toWord();
-
 	}
 
 });
