@@ -1,40 +1,17 @@
 Item = new Class({
 
-	Implements: Base,
+	Implements: [Base,English],
 
 	short: null,
 
 	long: null,
 
 	aliases: [],
+
+	adjectives: [],
 	
 	set_short: function(desc) {
 		this.short = desc;
-	},
-
-	get_color: function() {
-		return ['green', 'silver', 'red', 'purple', 'yellow', 'neon pink'].getRandom();
-	},
-
-	get_material: function() {
-		var mats = ['dull', 'fluffy', 'weathered', 'oversized', 'shiny', 'fuzzy', 'sparkling', 'rhinestone-encrusted', 'leather', 'velvet', 'satin', 'silk'];
-		return mats.getRandom();
-	},
-
-	get_type: function() {
-		return ['jacket', 'hat', 'shirt', 'bracelet', 'scarf', 'bowtie'].getRandom();
-	},
-
-	get_type_pair: function() {
-		return ['gloves', 'pants', 'skates', 'bracelets', 'shoes', 'boots'].getRandom();
-	},
-
-	on_equip: function() {
-
-	},
-
-	on_remove: function() {
-
 	},
 
 	set_long: function(desc) {
@@ -49,6 +26,22 @@ Item = new Class({
 		this.aliases.push(alias);
 	},
 
+	add_adjective: function(adj) {
+		this.adjectives.push(adj);
+	},
+
+	set_adjectives: function(adj) {
+		this.adjectives = adj;
+	},
+
+	on_equip: function() {
+
+	},
+
+	on_remove: function() {
+
+	},
+
 	getDescription: function(observer) {
 		return this.long;
 	},
@@ -60,6 +53,10 @@ Item = new Class({
 
 	hasAlias: function(alias) {
 		return (this.aliases.contains(alias));
+	},
+
+	hasAdjective: function(adj) {
+		return (this.adjectives.contains(adj));
 	}
 
 });

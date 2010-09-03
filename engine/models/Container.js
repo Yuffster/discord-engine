@@ -42,6 +42,25 @@ Container = new Class({
 
 	removeItem: function(item) {
 		this.items.erase(item);
+	},
+
+	listItems: function() {
+		var clump = new Hash({});
+		var shortlist = {};
+		this.items.each(function(i) {
+			if (clump[i.short]) clump[i.short]++;
+			else {
+				clump[i.short]==1;
+				shortList[i.short] = i;
+			}
+		});
+		var strs = [];
+		clump.each(function(n,short) {
+			var i = shortlist[short];
+			if (n==1) strs.push(i.get('determinate')+' '+this.short);
+			else strs.push(n.toWord()+' '+i.pluralize());
+		});
+		return strs;
 	}
 
 });
