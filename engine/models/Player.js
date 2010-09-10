@@ -33,13 +33,18 @@ Player = new Class({
 		if (world.getPlayer(this.get('name'))) return false;
 		world.addPlayer(this);
 		this.world = world;
-    this.set('location', "lobby");
-    this.set('room',(world.getRoom('lobby')));
-    var room = world.getRoom('lobby');
-    room.addPlayer(this);
+		this.set('location', "lobby");
+		this.set('room',(world.getRoom('lobby')));
 		this.force('look');
-		this.addItem(this.world.loadItem('rollerskates'));
 		return true;
+	},
+
+	on_birth: function() {
+
+	},
+
+	on_login: function() {
+
 	}
 
 });

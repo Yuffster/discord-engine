@@ -67,7 +67,7 @@ Room = new Class({
 	},
 
 	getDescription: function(observer) {
-		if (!observer) return "But you're nonexistent, so who fucking cares?";
+		if (!observer) return;
 		var lines = [];
 		lines.push(this.get('long'));
 		lines.push('Exits: '+this.get('exits').getKeys().join(', '));
@@ -83,10 +83,7 @@ Room = new Class({
 			}
 			lines.push(living.join(', ') + (living.length>1 ? " are" : " is") + " standing here.");
 		}
-		var items = [];
-		this.get('items').each(function(item) {
-			items.push(item.get('short'));
-		});
+		var items = this.listItems();
 		if (items.length>0){
 			if (items.length>1) items[items.length-1] = 'and '+items.getLast();
 			lines.push(items.join(', ') + (items.length>1 ? " are" : " is") + " on the ground.");

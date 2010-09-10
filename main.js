@@ -35,8 +35,6 @@ world = new World('discoworld');
 
 handlePlayer = function(playerName, stream) {
 	
-	if (playerName == 'male' || playerName == 'boy') return false;
-
 	if (playerName.match(/\W|\d/)) {
 		stream.write("Letters only, please.");
 	}
@@ -63,7 +61,6 @@ handlePlayer = function(playerName, stream) {
 	try {
 		if (!player.enterWorld(world)) return false;
 		player.send("Hi there, "+player.get('name')+"!");
-    player.send("Are you a 'boy' or a 'girl' dancer?");
 		return true;
 	} catch (e) {
 		log_error(e);

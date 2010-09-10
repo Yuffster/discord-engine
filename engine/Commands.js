@@ -6,6 +6,7 @@ Commands = {
 
 	'look': function(obj) {
 		obj = obj.toLowerCase();
+		if (obj=='me') obj = this.get('name');
 		var room = this.get('room');
 		var reply = [];
 		if (!obj) {
@@ -24,7 +25,7 @@ Commands = {
 			//If we still don't have anything, return nothing.
 			if (!item) return("You can't see anything interesting.");
 			//Otherwise, return the item's description.
-			return item.getDescription();
+			return item.getDescription(this);
 		} return reply;
 	}, 
 
@@ -38,9 +39,10 @@ Commands = {
 
 	'wear': function(item) {
 		if (!item) return "Wear what?";
-		if (this.getItem(item)) this.equipItem(this.getItem(item));
+		if (this.getItem(item)) var success = this.equipItem(this.getItem(item));
 		else return "You don't have that.";
-		this.emit("%You wear%s "+this.getEquippedItem(item).get('short')+'.');
+		if (success!==false) this.emit("%You wear%s "+this.getItem(item).get('short')+'.');
+		else this.send("That isn't wearable.");
 		return true;
 	},
 
@@ -156,14 +158,6 @@ Commands = {
 	'@': function(string) {
 		this.emit(string);
 		return true;
-	},
-  'boy': function(string) {
-          this.set('gender', 'male');
-          return "Congratulations, you're now a boy dancer.";
-        },
-  'girl': function(string) {
-          this.set('gender', 'female');
-          return "Congratulations, you're now a girl dancer.";
-        }
-
+	}
+  
 };

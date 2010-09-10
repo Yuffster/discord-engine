@@ -1,14 +1,18 @@
 Item = new Class({
 
-	Implements: [Base,English],
+	Implements: Base,
 
 	short: null,
 
 	long: null,
 
+	determinate: null,
+
 	aliases: [],
 
 	adjectives: [],
+
+	noun: null,
 	
 	set_short: function(desc) {
 		this.short = desc;
@@ -34,6 +38,10 @@ Item = new Class({
 		this.adjectives = adj;
 	},
 
+	set_determinate: function(str) {
+		this.determinate = str;
+	},
+
 	on_equip: function() {
 
 	},
@@ -42,21 +50,51 @@ Item = new Class({
 
 	},
 
+	getDeterminate: function() {
+		if (this.determinate) return this.determinate;
+		else return this.short.getArticle();
+	},
+
 	getDescription: function(observer) {
 		return this.long;
 	},
 
 	getShort: function() {
-		if (this.short) return this.short;
-		return 'a thing';
+		if (this.short) return this.get('determinate')+' '+this.short;
+		return 'thing';
 	},
 
-	hasAlias: function(alias) {
-		return (this.aliases.contains(alias));
+	getNoun: function() {
+		if (this.noun) return this.noun;
+		else return this.short.split(' ').pop();
+	},
+
+	hasNoun: function(alias) {
+		return (alias==this.get('noun')) ? true : this.aliases.contains(alias);
+	},
+
+	getAdjectives: function() {
+		var shortAdjs = this.get('short').split(' ');
+		shortAdjs.pop();
+		return shortAdjs.concat(this.adjectives);
 	},
 
 	hasAdjective: function(adj) {
-		return (this.adjectives.contains(adj));
+		return (this.get('adjectives').contains(adj));
+	},
+
+	//Determines how well a given string matches this item's short,
+	//adjectives and aliases.
+	matches: function(words) {
+		words = words.split(' ');
+		noun  = words.pop();
+		if (!this.hasNoun(noun)) return;
+		var match = true;
+		words.each(function(w) {
+			if (match===false) return;
+			if (!this.hasAdjective(w)) match = false;
+		}, this);
+		return match;
 	}
 
 });

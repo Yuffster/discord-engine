@@ -4,18 +4,43 @@ Living = new Class({
 
 	Implements: [Events,Options,Container],
 
-	queue: [],
-	heartTimer: null,
+	//The name of the living when seen in a list of things.
 	short: null,
+
+	//The description of the living seen when examined.
 	long: null,
-	name: null,
-	world: null,
-	room: null,
-	location: null,
+
 	gender: 'male', //OMG SEXIST!!!!!ONE!!!!
+
+	//The UNIQUE name of this living.
+	name: null,
+
+	//The world object, filled in when the living enters the world.
+	world: null,
+
+	//The room object, filled in when the living moves to a new room.
+	room: null,
+
+	//The path name of the room.  Convenience.
+	location: null,
+
+	//Commands added to the queue are executed once per heartbeat.
+	queue: [],
+
+	//Will be filled with the periodic timer when the heart is started.
+	heartTimer: null,
+
+	//How often the living will try to do something from its chatter list.
 	chat_rate: null,
+
+	//A bunch of things the living can do at random intervals.
 	chatter: [],
+
+	//Same as item aliases.
 	aliases: [],
+
+	//List of currently equipped items.
+	equipped: [],
 
 	init: function(name) {
 		if (name) this.set('name', name);
@@ -51,36 +76,24 @@ Living = new Class({
 		}
 	},
 
-	describeInventory: function() {
+	describeInventory: function(obsv) {
 		var lines = [];
-	
-		var items = [];
-		this.get('equipped').each(function(item) {
-			items.push(item.get('short'));
-		});
-		if (items.length>0){
-			if (items.length>1) items[items.length-1] = 'and '+items.getLast();
-			lines.push("Wearing: "+items.join(', '));
+		if (this.equipped.length) {
+			lines.push(this.genderize('%You %are wearing ', obsv)+
+			           this.listItems(this.equipped).conjoin()+'.');
 		}
-
-		var items = [];
-		this.get('items').each(function(item) {
-			items.push(item.get('short'));
-		});
-		if (items.length>0){
-			if (items.length>1) items[items.length-1] = 'and '+items.getLast();
-			lines.push("Carrying: "+items.join(', '));
+		if (this.items.length) {
+			lines.push(this.genderize('%You %are carrying ', obsv)+
+			           this.listItems().conjoin()+'.');
 		}
-
 		return lines;
 	},
 
 	getDescription: function(observer) {
 		reply = [];
-		if (!this.get('long')) reply.push(this.genderize('%you look%s pretty ordinary.'));
+		if (!this.get('long')) reply.push(this.genderize('%you look%s pretty ordinary.', observer));
 		reply.push(this.get('long'));
-		this.describeInventory().each(function(l) {
-			sys.puts(l);
+		this.describeInventory(observer).each(function(l) {
 			reply.push(l);
 		});
 		return reply;
@@ -101,7 +114,9 @@ Living = new Class({
 			'yourself' : (male) ? 'himself' : 'herself',
 			'Your'  : name+"'s", //(male) ? 'His' : 'her',
 			's'     : 's',
-			'es'    : 'es'
+			'es'    : 'es',
+			'y'     : 'ies',
+			'are'   : 'is'
 		};
 
 		if (you) {
@@ -254,6 +269,31 @@ Living = new Class({
 	 */
 	force: function(command) {
 		return this.parseCommand(command);
+	},
+
+/**
+ * Item-related stuff (equipment).
+ */
+
+	getEquippedItem: function(name) {
+		var name = name.split(' ')[0];
+		var item = false;
+		this.equipped.each(function(i){
+			if (!item && i.matches(name)) item = i;
+		});
+		return item;
+	},
+
+	equipItem: function(item) {
+		if (item.on_equip(this) === false) return false;
+		this.items.erase(item);
+		this.equipped.push(item);
+	},
+
+	unequipItem: function(item) {
+		if (item.on_remove(this) === false) return false;
+		this.items.push(item);
+		this.equipped.erase(item);
 	},
 
 /**

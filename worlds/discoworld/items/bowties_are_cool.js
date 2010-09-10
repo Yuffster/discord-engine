@@ -60,7 +60,7 @@ exports.item = new Class({
 		if ((Math.random()*2).floor()==1) fit      = '';
 		if ((Math.random()*3).floor()==1) style    = '';
 
-		this.set_short('a '+style+pair+fit+color+material+type);
+		this.set_short(style+pair+fit+color+material+type);
 		this.set_aliases([type, color.trim(), material.trim()]);
 	},
 

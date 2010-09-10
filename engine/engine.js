@@ -1,4 +1,5 @@
 require('engine/Commands');
+require('engine/English');
 require('engine/Messages');
 require('engine/models/Base');
 require('engine/models/Container');
