@@ -1,0 +1,17 @@
+exports.command = new Class({
+
+	Extends: Command,
+
+	execute: function() {
+		var params = string.split(' ');
+		var target = params.shift();
+		target = this.world.getPlayer(target);
+		if (target) {
+			target.send(this.name + " tells you: " + params.join(' '));
+			return ("You tell " + target.name + ": " + params.join(' '));
+		} else {
+			return "Tell who?";
+		}
+	}
+
+});

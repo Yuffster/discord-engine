@@ -1,7 +1,7 @@
-require('engine/Commands');
 require('engine/English');
 require('engine/Messages');
 require('engine/models/Base');
+require('engine/models/Command');
 require('engine/models/Container');
 require('engine/models/Item');
 require('engine/models/Living');

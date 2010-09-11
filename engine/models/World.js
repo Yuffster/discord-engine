@@ -6,6 +6,8 @@ World = new Class({
 
 	rooms: {},
 
+	commands: {},
+
 	items: {},
 
 	npcs: {},
@@ -13,6 +15,10 @@ World = new Class({
 	name: null,
 
 	basePath: null,
+
+	enginePath: 'engine/',
+
+	commandPath: 'commands/',
 
 	roomPath: 'rooms/',
 
@@ -63,6 +69,20 @@ World = new Class({
 				return false;
 			}
 		} return this.rooms[path];
+	},
+
+	getCommand: function(command) {
+		if (!this.commands[command]) {
+			var file = this.enginePath+this.commandPath+command;
+			sys.puts("Loading command: "+file);
+			try {
+				var com = require(file).command;
+				this.commands[command] = new com();
+			} catch (e) {
+				log_error("Can't find command file: "+file);
+				return false;
+			}
+		} return this.commands[command];
 	},
 
 	loadItem: function(path) {

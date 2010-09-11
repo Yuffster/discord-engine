@@ -31,6 +31,7 @@ Player = new Class({
 	 */
 	enterWorld: function(world) {
 		if (world.getPlayer(this.get('name'))) return false;
+		this.gender = 'female';
 		world.addPlayer(this);
 		this.world = world;
 		this.set('location', "lobby");

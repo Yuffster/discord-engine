@@ -188,7 +188,7 @@ Living = new Class({
 	 */
 	beatHeart: function() {
 		if (this.queue.length>0) this.callNextAction();
-		this.doChat();
+		else this.doChat();
 	},
 
 	/**
@@ -239,11 +239,11 @@ Living = new Class({
 		var params = string.split(' ');
 		var command = params.shift();
 		var out = '';
-		if (typeof Commands[command] !== 'undefined'){
+		var com = this.world.getCommand(command);
+		if (com){
 			params = params.join(' ');
-			out = Commands[command].bind(this).pass(params)();
-		}
-		else if (this.get('room') && this.get('room').hasExit(string)){
+			out = com.execute.bind(this).pass(params,com)();
+		} else if (this.get('room') && this.get('room').hasExit(string)){
 			this.force('move '+ string);
 			return this.force('look');
 		}
