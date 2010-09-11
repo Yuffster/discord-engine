@@ -1,4 +1,3 @@
-// This is now out of date, put changes in the main server engine at the front. 
 sys = require('sys');
 require.paths.push('./');
 require('lib/mootools').apply(GLOBAL);
@@ -18,10 +17,6 @@ var server = net.createServer(function (stream) {
 		if (!closure) stream.write("Please try a different name: ");
 	}); 
 
-	stream.on('end', function () {
-		stream.write('goodbye\r\n');
-		stream.end();
-	});
 
 });
 
@@ -48,6 +43,14 @@ handlePlayer = function(playerName, stream) {
 
 	player.addEvent('output', function(message, style) {
 		stream.write(message.style(style)+"\r\n");
+	});
+
+	player.addEvent('quit', function() {
+		stream.end('Goodbye!');
+	});
+
+	stream.on('end', function () {
+		player.disconnect();
 	});
 
 	stream.on('data', function(data) {

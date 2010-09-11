@@ -54,11 +54,11 @@ exports.item = new Class({
 
 		this.set_long(desc);
 
-		if ((Math.random()*2).floor()==1) color    = '';
-		if ((Math.random()*2).floor()==1) material = '';
-		if ((Math.random()*2).floor()==1) extra    = '';
-		if ((Math.random()*2).floor()==1) fit      = '';
-		if ((Math.random()*3).floor()==1) style    = '';
+		if ((Math.random()* 2).floor()==1) color    = '';
+		if ((Math.random()*10).floor()==1) material = '';
+		if ((Math.random()* 2).floor()==1) extra    = '';
+		if ((Math.random()*10).floor()==1) fit      = '';
+		if ((Math.random()*10).floor()==1) style    = '';
 
 		this.set_short(style+pair+fit+color+material+type);
 		this.set_aliases([type, color.trim(), material.trim()]);

@@ -40,6 +40,10 @@ Player = new Class({
 		return true;
 	},
 
+	disconnect: function() {
+		this.fireEvent('quit');
+	},
+
 	on_birth: function() {
 
 	},
