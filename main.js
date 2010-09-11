@@ -47,16 +47,7 @@ handlePlayer = function(playerName, stream) {
 	var player = new Player(playerName);
 
 	player.addEvent('output', function(message, style) {
-		if (Styles[style]) {
-			var classes = (Styles[style]);
-			if (!classes.each) classes = [classes];
-			var codes = '';
-			classes.each(function(color) {
-				codes += ANSI.get(color);
-			});
-			message = codes+message+ANSI.get('reset');
-		}
-		stream.write(message+"\r\n");
+		stream.write(message.style(style)+"\r\n");
 	});
 
 	stream.on('data', function(data) {

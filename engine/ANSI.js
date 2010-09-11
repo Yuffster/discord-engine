@@ -45,7 +45,20 @@ ANSI = {
 
 String.implement({
 
-	style: function() {
+	style: function(style) {
+		if (Styles[style]) {
+			var classes = (Styles[style]);
+			if (!classes.each) classes = [classes];
+			var codes = '';
+			classes.each(function(color) {
+				codes += ANSI.get(color);
+			});
+			return codes+this+ANSI.get('reset');
+		}
+		return this;
+	},
+
+	parseCodes: function(style) {
 		var str    = this;
 		var styles = str.match(/\%\^(\w+)\%\^/g);
 		if (!styles) return this;
