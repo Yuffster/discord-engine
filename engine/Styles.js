@@ -2,8 +2,9 @@
 Styles = {
 
 	'tell':   ['bold','yellow'],
-	'say':    'cyan',
-	'exits':  'green',
-	'peril':  ['bold', 'red']
+	'speech':  'cyan',
+	'exits':   'green',
+	'peril':  ['bold', 'red'],
+	'label':   'purple'
 
 };

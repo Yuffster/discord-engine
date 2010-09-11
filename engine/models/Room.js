@@ -69,8 +69,8 @@ Room = new Class({
 	getDescription: function(observer) {
 		if (!observer) return;
 		var lines = [];
-		lines.push(this.get('long'));
-		lines.push('Exits: '+this.get('exits').getKeys().join(', '));
+		observer.send(this.get('long'));
+		observer.send('Exits: '+this.get('exits').getKeys().join(', '), 'exits');
 		var living = [];
 		this.get('living').each(function(live) {
 			if (live!=observer) living.push(live.get('short'));

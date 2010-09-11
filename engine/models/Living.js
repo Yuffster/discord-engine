@@ -209,7 +209,7 @@ Living = new Class({
 	/**
 	 * Emits a message to everyone in the room.
 	 */
-	emit: function(message) {
+	emit: function(message, style) {
 		var my = this;
 		var me = this.name;
 		if (!this.get('room')) {
@@ -220,7 +220,7 @@ Living = new Class({
 			//If it's not the current player, send the message with she or he.
 			if (player.name != me) player.send(my.genderize(message));
 			//Otherwise, use "you".
-			else player.send(my.genderize(message, true));
+			else player.send(my.genderize(message, true), style);
 		});
 	},
 
