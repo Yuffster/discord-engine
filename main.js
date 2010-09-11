@@ -33,11 +33,11 @@ var server = net.createServer(function (stream) {
 	player.ip    = stream.remoteAddress;
 	player.world = world;
 
+	sys.puts(player.ip+" has connected.");
+
 	player.prompt(Prompts.login, "Please enter your name.");
 
-    stream.on('data', function (data) {
-		player.onInput(data);
-	});
+	stream.on('data', player.onInput);
 
 	stream.on('end', function () {
 		player.send("Goodbye.");
