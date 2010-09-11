@@ -4,21 +4,8 @@ require('lib/mootools').apply(GLOBAL);
 require('engine/engine');
 var net = require('net');
 
-var server = net.createServer(function (stream) {
-
-    stream.on('connect', function () {
-		stream.write("What is your name?\r\n");
-		sys.puts("User connected ("+stream.remoteAddress+")");
-	});
-
-	var closure = null;
-	stream.on('data', function (data) {
-		if (!closure) closure = handlePlayer(new String(data).trim().split(' ')[0], stream);
-		if (!closure) stream.write("Please try a different name: ");
-	}); 
-
-
-});
+var port = (process.argv[2]) || '8000';
+var PORT = port.trim().toInt();
 
 log_error = function(message) {
 	sys.puts("ERROR: "+message);
@@ -26,20 +13,13 @@ log_error = function(message) {
 
 GLOBAL.onerror = log_error;
 
-world = new World('discoworld');
+var world = new World('discoworld');
 
-handlePlayer = function(playerName, stream) {
-	
-	if (playerName.match(/\W|\d/)) {
-		stream.write("Letters only, please.");
-	}
+var server = net.createServer(function (stream) {
 
-	if (world.getPlayer(playerName)) {
-		stream.write("Sorry, that name is already taken.");
-		return false;
-	}
+	stream.setEncoding('utf8');
 
-	var player = new Player(playerName);
+	var player = new Player();
 
 	player.addEvent('output', function(message, style) {
 		if (!stream.writable) return;
@@ -50,26 +30,21 @@ handlePlayer = function(playerName, stream) {
 		stream.end();
 	});
 
-	//stream.on('end', function () {
-		//if (player.world.getPlayer(player)) player.disconnect();
-	//});
+	player.ip    = stream.remoteAddress;
+	player.world = world;
 
-	stream.on('data', function(data) {
-		try {
-			player.onInput(new String(data).trim());
-		} catch(e) {
-			log_error(e);
-		}
+	player.prompt(Prompts.login, "Please enter your name.");
+
+    stream.on('data', function (data) {
+		player.onInput(data);
 	});
 
-	try {
-		if (!player.enterWorld(world)) return false;
-		player.send("Hi there, "+player.get('name')+"!");
-		return true;
-	} catch (e) {
-		log_error(e);
-	}
+	stream.on('end', function () {
+		player.send("Goodbye.");
+		stream.end();
+	});
 
-};
+});  
 
-server.listen(8000);
+server.listen(PORT);
+sys.puts("Now listening on "+PORT);

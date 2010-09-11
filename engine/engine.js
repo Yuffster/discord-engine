@@ -1,6 +1,7 @@
 require('engine/English');
 require('engine/ANSI');
 require('engine/Styles');
+require('engine/Prompts');
 require('engine/Messages');
 require('engine/models/Base');
 require('engine/models/Command');

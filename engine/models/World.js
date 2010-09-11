@@ -67,7 +67,7 @@ World = new Class({
 			sys.puts("Loading room: "+file);
 			try {
 				var room  = require(file).room;
-				this.rooms[path] = new room(world);
+				this.rooms[path] = new room(this);
 				this.rooms[path].path = path;
 			} catch (e) {
 				log_error("Required room file ("+file+") not found.");
