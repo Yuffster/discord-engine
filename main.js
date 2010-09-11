@@ -42,16 +42,17 @@ handlePlayer = function(playerName, stream) {
 	var player = new Player(playerName);
 
 	player.addEvent('output', function(message, style) {
+		if (!stream.writable) return;
 		stream.write(message.style(style)+"\r\n");
 	});
 
 	player.addEvent('quit', function() {
-		stream.end('Goodbye!');
+		stream.end('Goodbye!\r\n');
 	});
 
-	stream.on('end', function () {
-		player.disconnect();
-	});
+	//stream.on('end', function () {
+		//if (player.world.getPlayer(player)) player.disconnect();
+	//});
 
 	stream.on('data', function(data) {
 		try {

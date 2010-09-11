@@ -41,6 +41,7 @@ Player = new Class({
 	},
 
 	disconnect: function() {
+		this.world.removePlayer(this);
 		this.fireEvent('quit');
 	},
 

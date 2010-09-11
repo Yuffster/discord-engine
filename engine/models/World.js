@@ -46,6 +46,11 @@ World = new Class({
 		this.announce(player.name+" has entered the world.");
 	},
 
+	removePlayer: function(player) {
+		delete(this.players[player.name.toLowerCase()]);
+		this.announce(player.name+" has left the world.");
+	},
+
 	getPlayer: function(name) {
 		return this.players[name.toLowerCase()] || false;
 	},
