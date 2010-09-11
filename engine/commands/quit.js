@@ -4,8 +4,8 @@ exports.command = new Class({
 
 	execute: function(content) {
 		this.emit("%You leave%s the game.");
-		this.send("Goodbye!");
 		this.disconnect();
+		return true;
 	}
 
 });

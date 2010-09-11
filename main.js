@@ -47,7 +47,7 @@ handlePlayer = function(playerName, stream) {
 	});
 
 	player.addEvent('quit', function() {
-		stream.end('Goodbye!\r\n');
+		stream.end();
 	});
 
 	//stream.on('end', function () {
