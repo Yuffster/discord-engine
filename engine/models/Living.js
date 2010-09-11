@@ -218,7 +218,7 @@ Living = new Class({
 		}
 		this.get('room').get('players').each(function(player, name) {
 			//If it's not the current player, send the message with she or he.
-			if (player.name != me) player.send(my.genderize(message));
+			if (player.name != me) player.send(my.genderize(message), style);
 			//Otherwise, use "you".
 			else player.send(my.genderize(message, true), style);
 		});
