@@ -1,9 +1,9 @@
 // This is now out of date, put changes in the main server engine at the front. 
+sys = require('sys');
 require.paths.push('./');
 require('lib/mootools').apply(GLOBAL);
 require('engine/engine');
 var net = require('net');
-sys = require('sys');
 
 var server = net.createServer(function (stream) {
 
@@ -46,7 +46,16 @@ handlePlayer = function(playerName, stream) {
 
 	var player = new Player(playerName);
 
-	player.addEvent('output', function(message) {
+	player.addEvent('output', function(message, style) {
+		if (Styles[style]) {
+			var classes = (Styles[style]);
+			if (!classes.each) classes = [classes];
+			var codes = '';
+			classes.each(function(color) {
+				codes += ANSI.get(color);
+			});
+			message = codes+message+ANSI.get('reset');
+		}
 		stream.write(message+"\r\n");
 	});
 
