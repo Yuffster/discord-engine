@@ -103,17 +103,19 @@ World = new Class({
 	loadNPC: function(path) {
 		if (!this.npcs[path]) {
 			var file = 'worlds/'+this.basePath+this.npcPath+path;
-			sys.puts("Loading item: "+file);
+			sys.puts("Loading NPC: "+file);
 			try {
 				var npc = require(file).npc;
-				npc.path = path;
 				this.npcs[path] = npc;
-				this.npcs[path].world = this;
 			} catch (e) {
 				log_error("Required npc file ("+file+") not found.");
 				return false;
 			}
-		} return new this.npcs[path]();
+		}
+		var npc   = new this.npcs[path]();
+		npc.path  = path;
+		npc.world = this;
+		return npc;
 	}
 
 });
