@@ -21,7 +21,7 @@ Living = new Class({
 	//The room object, filled in when the living moves to a new room.
 	room: null,
 
-	//The path name of the room.  Convenience.
+	//The path name of the room. We'll save this for the player.
 	location: null,
 
 	//Commands added to the queue are executed once per heartbeat.

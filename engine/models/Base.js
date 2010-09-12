@@ -15,10 +15,6 @@ Base = new Class({
 
 	},
 
-	save: function (k, v) {
-		this.save[k] = v;
-	},
-
 	get: function(k) {
 		var meth = 'get'+k.capitalize();
 		if (this[meth])  return this[meth]();
@@ -30,7 +26,23 @@ Base = new Class({
 	set: function(k ,v) {
 		var meth = 'set'+k.capitalize();
 		if (this[meth]) this[meth](v);
-		else this[k] = v;
-	}
+		if (this[k]) this[k] = v;
+		else this.save[k] = v;
+	},
+
+	/**
+	 * Any model that needs to be saved to disk has to be able to dump its
+	 * contents into an object or array.
+	 */
+	dump: function() {
+		return null;
+	},
+
+	/**
+	 * Reload the object based on its dumped data.
+	 */
+	 loadData: function(dump) {
+
+	 }
 
 });

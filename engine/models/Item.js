@@ -13,6 +13,8 @@ Item = new Class({
 	adjectives: [],
 
 	noun: null,
+
+	path: null,
 	
 	set_short: function(desc) {
 		this.short = desc;
@@ -95,6 +97,26 @@ Item = new Class({
 			if (!this.hasAdjective(w)) match = false;
 		}, this);
 		return match;
+	},
+
+	dump: function() {
+		var obj = {
+			'short': this.short,
+			'long':  this.long,
+			'aliases': this.aliases,
+			'noun': this.noun,
+			'determinate': this.determinate,
+			'path': this.path,
+			'save': this.save
+		};
+		return obj;
+	},
+
+	loadData: function(data) {
+		var that = this;
+		new Hash(data).each(function(v,k) {
+			that[k] = v;
+		});
 	}
 
 });

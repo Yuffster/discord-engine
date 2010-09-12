@@ -26,6 +26,8 @@ World = new Class({
 
 	npcPath: 'npcs/',
 
+	savePath: 'saves/',
+
 	/**
 	 * The name of the world will determine the path to the world's room and
 	 * object files.
@@ -42,8 +44,34 @@ World = new Class({
 	 * Adds the player to the world.
 	 */
 	addPlayer: function(player) {
+		player.world = this;
 		this.players[player.name.toLowerCase()] = player;
 		this.announce(player.name+" has entered the world.");
+		var data = this.loadPlayerData(name);
+		if (data) player.loadData(data);
+		else player.set('location', 'lobby');
+	},
+
+	loadPlayerData: function(name) {
+		var file = 'worlds/'+this.basePath+this.savePath+name;
+		sys.puts("Loading player save: "+file);
+		try {
+			return require(file).data;
+		} catch (e) {
+			log_error(e);
+			return false;
+		} 
+	},
+
+	savePlayer: function(player) {
+		var file = 'worlds/'+this.basePath+this.savePath+player.name;
+		var dump = player.dump();
+		if (!dump) return false;
+		var json = JSON.encode(dump);
+		fs.writeFile(file, 'exports.data='+json, function (e) {
+  			if (e) log_error(e);
+			player.send("Game data saved.");
+		});
 	},
 
 	removePlayer: function(player) {
@@ -96,7 +124,7 @@ World = new Class({
 			sys.puts("Loading Item: "+file);
 			try {
 				var item  = require(file).item;
-				item.path = path;
+				item.implement({path:path});
 				this.items[path] = item;
 			} catch (e) {
 				log_error("Error loading "+file+": "+e);

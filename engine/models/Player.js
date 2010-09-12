@@ -42,12 +42,44 @@ Player = new Class({
 	enterWorld: function(world) {
 		if (!world) world = this.world;
 		if (world.getPlayer(this.get('name'))) return false;
-		this.gender = 'female';
 		world.addPlayer(this);
-		this.world = world;
-		this.set('location', 'lobby');
 		this.force('look');
 		return true;
+	},
+
+	dump: function() {
+		var obj = {
+			'location': this.location,
+			'save': this.save,
+			'items': [],
+			'equipped': []
+		};
+		this.items.each(function(item) {
+			obj.items.push(item.dump());
+		});
+		this.equipped.each(function(item) {
+			obj.equipped.push(item.dump());
+		});
+		return obj;
+	},
+
+	loadData: function(dump) {
+		this.set('location', dump.location);
+		this.save = dump.save;
+		dump.items.each(function(itm) {
+			if (!itm.path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
+			var item = this.world.loadItem(itm.path);
+			if (!item) return false;
+			item.loadData.bind(item)(itm);
+			this.addItem(item);
+		}, this);
+		dump.equipped.each(function(itm) {
+			if (!itm.path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
+			var item = this.world.loadItem(itm.path);
+			if (!item) return false;
+			item.loadData(itm);
+			this.equipItem(item);
+		},this);
 	},
 
 	disconnect: function() {
