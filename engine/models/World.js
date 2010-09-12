@@ -54,7 +54,7 @@ World = new Class({
 		var path = this.savePath+player.name;
 		this.loadFile(path, function(e,data) {
 			if (!data) player.set('location','lobby');
-			player.loadData(data);
+			else player.loadData(data);
 			player.force('look');
 		});
 	},
@@ -145,7 +145,6 @@ World = new Class({
 		var handleData = function(e,data) {
 			if (e) log_error(e);
 			var e = false;
-			sys.puts(data);
 			if (!data) {
 				e = "Failed to load file: "+file;
 				log_error(e);
