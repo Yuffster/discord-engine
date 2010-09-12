@@ -1,4 +1,4 @@
-exports.room = new Class({
+new Class({
 
 	Extends: Room,
 

@@ -1,4 +1,5 @@
 sys = require('sys');
+fs  = require('fs');
 require.paths.push('./');
 require('lib/mootools').apply(GLOBAL);
 require('engine/engine');
@@ -10,8 +11,7 @@ var PORT = port.trim().toInt();
 log_error = function(message) {
 	sys.puts("ERROR: ".color('red')+message);
 }
-
-GLOBAL.onerror = log_error;
+onerror = log_error;
 
 var world = new World('discoworld');
 
@@ -30,7 +30,7 @@ var server = net.createServer(function (stream) {
 		stream.write(message.style(style)+"\r\n");
 	});
 
-	player.addEvent('quit', stream.end);
+	player.addEvent('quit', function() { stream.end(); });
 
 	player.ip    = stream.remoteAddress;
 	player.world = world;
@@ -50,4 +50,3 @@ var server = net.createServer(function (stream) {
 
 server.listen(PORT);
 sys.puts("Now listening on "+PORT);
-ANSI.test();

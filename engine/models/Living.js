@@ -160,6 +160,7 @@ Living = new Class({
 			log_error("Can't find room for "+path);
 			return;
 		}
+		sys.puts(this.world.getRoom(path));
 		this.setRoom(this.world.getRoom(path));
 		this.location = path;
 	},

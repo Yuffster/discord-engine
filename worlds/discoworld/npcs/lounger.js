@@ -1,4 +1,4 @@
-exports.npc = new Class({
+new Class({
 
 	Extends: Living,
 

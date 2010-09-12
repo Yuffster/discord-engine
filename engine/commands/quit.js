@@ -1,10 +1,11 @@
-exports.command = new Class({
+new Class({
 
 	Extends: Command,
 
-	execute: function(content) {
+	execute: function() {
 		this.emit("%You leave%s the game.");
-		this.disconnect();
+		this.world.savePlayer(this);
+		this.addEvent('save', this.disconnect.bind(this));
 		return true;
 	}
 

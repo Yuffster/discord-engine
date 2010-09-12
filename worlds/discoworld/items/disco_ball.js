@@ -1,4 +1,4 @@
-exports.item = new Class({
+new Class({
 
 	Extends: Item,
 

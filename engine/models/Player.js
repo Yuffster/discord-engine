@@ -5,6 +5,9 @@ Player = new Class({
 	player: true,
 	currentPrompt: null,
 
+	//Default start location
+	location: 'lobby', 
+
 	/**
 	 * The main engine will add an event to the player object to output data.
 	 */
@@ -43,7 +46,6 @@ Player = new Class({
 		if (!world) world = this.world;
 		if (world.getPlayer(this.get('name'))) return false;
 		world.addPlayer(this);
-		this.force('look');
 		return true;
 	},
 

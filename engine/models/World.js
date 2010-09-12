@@ -47,30 +47,27 @@ World = new Class({
 		player.world = this;
 		this.players[player.name.toLowerCase()] = player;
 		this.announce(player.name+" has entered the world.");
-		var data = this.loadPlayerData(name);
-		if (data) player.loadData(data);
-		else player.set('location', 'lobby');
+		this.loadPlayerData(player);
 	},
 
-	loadPlayerData: function(name) {
-		var file = 'worlds/'+this.basePath+this.savePath+name;
-		sys.puts("Loading player save: "+file);
-		try {
-			return require(file).data;
-		} catch (e) {
-			log_error(e);
-			return false;
-		} 
+	loadPlayerData: function(player) {
+		var path = this.savePath+player.name;
+		this.loadFile(path, function(e,data) {
+			if (!data) player.set('location','lobby');
+			player.loadData(data);
+			player.force('look');
+		});
 	},
 
 	savePlayer: function(player) {
-		var file = 'worlds/'+this.basePath+this.savePath+player.name;
+		var file = 'worlds/'+this.basePath+this.savePath+player.name+'.js';
 		var dump = player.dump();
 		if (!dump) return false;
 		var json = JSON.encode(dump);
-		fs.writeFile(file, 'exports.data='+json, function (e) {
+		fs.writeFile(file, json, function (e) {
   			if (e) log_error(e);
 			player.send("Game data saved.");
+			player.fireEvent('save');
 		});
 	},
 
@@ -90,65 +87,84 @@ World = new Class({
 	},
 	
 	getRoom: function(path) {
+		var that = this;
 		if (!this.rooms[path]) {
-			var file = 'worlds/'+this.basePath+this.roomPath+path;
-			sys.puts("Loading Room: "+file);
-			try {
-				var room  = require(file).room;
-				this.rooms[path] = new room(this);
-				this.rooms[path].path = path;
-			} catch (e) {
-				log_error("Error loading "+file+": "+e);
-				return false;
-			}
+			var file = this.roomPath+path;
+			this.loadFile(file, function(e,room) {
+				that.rooms[path] = new room(that);
+				that.rooms[path].path = path;
+			}, {'sync':true});
 		} return this.rooms[path];
 	},
 
 	getCommand: function(command) {
+		var that = this;
 		if (!this.commands[command]) {
-			var file = this.enginePath+this.commandPath+command;
-			sys.puts("Loading Command: "+file);
-			try {
-				var com = require(file).command;
-				this.commands[command] = new com();
-			} catch (e) {
-				log_error("Error loading "+file+": "+e);
-				return false;
-			}
+			var path = 'engine/'+this.commandPath+command;
+			this.loadFile(path, function(e,com) {
+				that.commands[command] = new com(that);
+				that.commands[command].path = path;
+			}, {'sync':true, 'rootPath':true});
 		} return this.commands[command];
 	},
 
 	loadItem: function(path) {
+		var that = this;
 		if (!this.items[path]) {
-			var file = 'worlds/'+this.basePath+this.itemPath+path;
-			sys.puts("Loading Item: "+file);
-			try {
-				var item  = require(file).item;
-				item.implement({path:path});
-				this.items[path] = item;
-			} catch (e) {
-				log_error("Error loading "+file+": "+e);
-				return false;
-			}
+			var file = this.itemPath+path;
+			this.loadFile(file, function(e,item) {
+				that.items[path] = item;
+			}, {'sync':true});
 		} return new this.items[path]();
 	},
 
 	loadNPC: function(path) {
 		if (!this.npcs[path]) {
-			var file = 'worlds/'+this.basePath+this.npcPath+path;
-			sys.puts("Loading NPC: "+file);
-			try {
-				var npc = require(file).npc;
-				this.npcs[path] = npc;
-			} catch (e) {
-				log_error("Required npc file ("+file+") not found.");
-				return false;
-			}
+			var file = this.npcPath+path;
+			var that = this;
+			if (!this.npcs[path]) {
+				this.loadFile(file, function(e,item) {
+					that.npcs[path] = item;
+				}, {'sync':true});
+			} 
 		}
 		var npc   = new this.npcs[path]();
 		npc.path  = path;
 		npc.world = this;
 		return npc;
+	},
+
+	/** 
+	 * I'm putting this function last because it's the ugliest.
+	 */
+	loadFile: function(path, callback, opts) {
+		opts = opts || {};
+		var file = 'worlds/'+this.basePath+path+'.js';
+		if (opts.rootPath) file = path+'.js';
+		sys.puts("Loading file: "+file);
+		var handleData = function(e,data) {
+			if (e) log_error(e);
+			var e = false;
+			sys.puts(data);
+			if (!data) {
+				e = "Failed to load file: "+file;
+				log_error(e);
+			} else {
+				try { eval('data='+data); }
+				catch (e) { e = e; }
+			}
+			callback(e, data);
+		};
+		if (opts.sync) {
+			try {
+				var data = fs.readFileSync(file);
+			} catch (e) {
+				return false;
+			}
+			return handleData(false,data);
+		} else {
+			fs.readFile(file, handleData);
+		}
 	}
 
 });
