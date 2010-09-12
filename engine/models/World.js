@@ -116,7 +116,7 @@ World = new Class({
 		if (!this.items[path]) {
 			var file = this.itemPath+path;
 			this.loadFile(file, function(e,item) {
-				item.path = path;
+				item.implement({'path':path});
 				that.items[path] = item;
 			}, {'sync':true});
 		} 
@@ -131,6 +131,7 @@ World = new Class({
 			var that = this;
 			if (!this.npcs[path]) {
 				this.loadFile(file, function(e,item) {
+					item.implement({'path':path});
 					that.npcs[path] = item;
 				}, {'sync':true});
 			} 

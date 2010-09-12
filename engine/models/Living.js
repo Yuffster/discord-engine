@@ -86,7 +86,7 @@ Living = new Class({
 			lines.push(this.genderize('%You %are carrying ', obsv)+
 			           this.listItems().conjoin()+'.');
 		}
-		if (lines.length==0) return "%You have nothing.";
+		if (lines.length==0) lines.push("%You have nothing.");
 		return lines;
 	},
 
