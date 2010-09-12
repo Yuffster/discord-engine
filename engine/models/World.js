@@ -142,14 +142,15 @@ World = new Class({
 		var file = 'worlds/'+this.basePath+path+'.js';
 		if (opts.rootPath) file = path+'.js';
 		sys.puts("Loading file: "+file);
-		var handleData = function(e,data) {
+		var handleData = function(e,raw) {
+			data = false;
 			if (e) log_error(e);
 			var e = false;
-			if (!data) {
+			if (!raw) {
 				e = "Failed to load file: "+file;
 				log_error(e);
 			} else {
-				try { eval('data='+data); }
+				try { eval('data='+raw); }
 				catch (e) { e = e; }
 			}
 			callback(e, data);
