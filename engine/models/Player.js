@@ -19,9 +19,9 @@ Player = new Class({
 		}, this);
 	},
 
-	prompt: function(fun, message) {
+	prompt: function(fun, message, style) {
 		this.setPrompt(fun.bind(this));
-		this.send(message);
+		this.send(message, style);
 	},
 
 	setPrompt: function(fun) {

@@ -14,7 +14,6 @@ Prompts = {
 			this.send(name+" is already connected.  Please try another name.");
 		}
 		this.name = name;
-		this.send("Hello, "+data+"!");
 		this.prompt(Prompts.gender, "Are you (M)ale or (F)emale?");
 	},
 
@@ -33,10 +32,8 @@ Prompts = {
 		if (data!='letmein') {
 			this.send("Password invalid, please try again (the password is 'letmein').");
 		} else {
-			this.send("Thank you, "+this.name+"!");
 			this.setPrompt(Prompts.command);
 		}
-		sys.puts(this.name+" has logged in.");
 	},
 
 	command: function(data) {

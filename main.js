@@ -8,7 +8,7 @@ var port = (process.argv[2]) || '8000';
 var PORT = port.trim().toInt();
 
 log_error = function(message) {
-	sys.puts("ERROR: "+message);
+	sys.puts("ERROR: ".color('red')+message);
 }
 
 GLOBAL.onerror = log_error;
@@ -19,6 +19,10 @@ var server = net.createServer(function (stream) {
 
 	stream.setEncoding('utf8');
 
+	stream.on('error', function(e) {
+		log_error(e);
+	});
+
 	var player = new Player();
 
 	player.addEvent('output', function(message, style) {
@@ -26,9 +30,7 @@ var server = net.createServer(function (stream) {
 		stream.write(message.style(style)+"\r\n");
 	});
 
-	player.addEvent('quit', function() {
-		stream.end();
-	});
+	player.addEvent('quit', stream.end);
 
 	player.ip    = stream.remoteAddress;
 	player.world = world;
@@ -37,7 +39,7 @@ var server = net.createServer(function (stream) {
 
 	player.prompt(Prompts.login, "Please enter your name.");
 
-	stream.on('data', player.onInput);
+	stream.on('data', player.onInput.bind(player));
 
 	stream.on('end', function () {
 		player.send("Goodbye.");
@@ -48,3 +50,4 @@ var server = net.createServer(function (stream) {
 
 server.listen(PORT);
 sys.puts("Now listening on "+PORT);
+ANSI.test();

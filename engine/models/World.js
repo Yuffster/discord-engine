@@ -64,13 +64,13 @@ World = new Class({
 	getRoom: function(path) {
 		if (!this.rooms[path]) {
 			var file = 'worlds/'+this.basePath+this.roomPath+path;
-			sys.puts("Loading room: "+file);
+			sys.puts("Loading Room: "+file);
 			try {
 				var room  = require(file).room;
 				this.rooms[path] = new room(this);
 				this.rooms[path].path = path;
 			} catch (e) {
-				log_error("Required room file ("+file+") not found.");
+				log_error("Error loading "+file+": "+e);
 				return false;
 			}
 		} return this.rooms[path];
@@ -79,12 +79,12 @@ World = new Class({
 	getCommand: function(command) {
 		if (!this.commands[command]) {
 			var file = this.enginePath+this.commandPath+command;
-			sys.puts("Loading command: "+file);
+			sys.puts("Loading Command: "+file);
 			try {
 				var com = require(file).command;
 				this.commands[command] = new com();
 			} catch (e) {
-				log_error("Can't find command file: "+file);
+				log_error("Error loading "+file+": "+e);
 				return false;
 			}
 		} return this.commands[command];
@@ -93,13 +93,13 @@ World = new Class({
 	loadItem: function(path) {
 		if (!this.items[path]) {
 			var file = 'worlds/'+this.basePath+this.itemPath+path;
-			sys.puts("Loading item: "+file);
+			sys.puts("Loading Item: "+file);
 			try {
 				var item  = require(file).item;
 				item.path = path;
 				this.items[path] = item;
 			} catch (e) {
-				log_error("Required item file ("+file+") not found.");
+				log_error("Error loading "+file+": "+e);
 				return false;
 			}
 		} return new this.items[path]();
