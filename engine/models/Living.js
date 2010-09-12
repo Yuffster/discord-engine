@@ -241,12 +241,13 @@ Living = new Class({
 		var command = params.shift();
 		var out = '';
 		var com = this.world.getCommand(command);
-		if (com){
-			params = params.join(' ');
-			out = com.execute.bind(this).pass(params,com)();
-		} else if (this.get('room') && this.get('room').hasExit(string)){
+
+		if (this.get('room') && this.get('room').hasExit(string)){
 			this.force('move '+ string);
 			return this.force('look');
+		} else if (com){
+			params = params.join(' ');
+			out = com.execute.bind(this).pass(params,com)();
 		}
 
 		//The commands either have to return before this point or have
