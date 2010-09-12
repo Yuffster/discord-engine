@@ -87,6 +87,7 @@ World = new Class({
 	},
 	
 	getRoom: function(path) {
+		if (!path) return;
 		var that = this;
 		if (!this.rooms[path]) {
 			var file = this.roomPath+path;
@@ -98,6 +99,7 @@ World = new Class({
 	},
 
 	getCommand: function(command) {
+		if (!command) return;
 		var that = this;
 		if (!this.commands[command]) {
 			var path = 'engine/'+this.commandPath+command;
@@ -109,16 +111,19 @@ World = new Class({
 	},
 
 	loadItem: function(path) {
+		if (!path) return;
 		var that = this;
 		if (!this.items[path]) {
 			var file = this.itemPath+path;
 			this.loadFile(file, function(e,item) {
+				item.path = path;
 				that.items[path] = item;
 			}, {'sync':true});
 		} return new this.items[path]();
 	},
 
 	loadNPC: function(path) {
+		if (!path) return;
 		if (!this.npcs[path]) {
 			var file = this.npcPath+path;
 			var that = this;
