@@ -119,7 +119,9 @@ World = new Class({
 				item.path = path;
 				that.items[path] = item;
 			}, {'sync':true});
-		} return new this.items[path]();
+		} 
+		if (this.items[path]) return new this.items[path]();
+		return false;
 	},
 
 	loadNPC: function(path) {
@@ -133,6 +135,7 @@ World = new Class({
 				}, {'sync':true});
 			} 
 		}
+		if (!this.npcs[path]) return false;
 		var npc   = new this.npcs[path]();
 		npc.path  = path;
 		npc.world = this;
