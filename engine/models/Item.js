@@ -114,7 +114,7 @@ Item = new Class({
 
 	loadData: function(data) {
 		var that = this;
-		new Hash(data).each(function(v,k) {
+		Object.each(data, function(v,k) {
 			that[k] = v;
 		});
 	}

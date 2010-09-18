@@ -11,9 +11,6 @@ Room = new Class({
 
 	initialize: function(world) {
 		this.world   = world;
-		this.players = new Hash(this.players);
-		this.exits   = new Hash(this.exits);
-		this.desc_items   = new Hash(this.items);
 		this.create();
 	},
 
@@ -41,7 +38,7 @@ Room = new Class({
 	getLiving: function(name) {
 		if (!name) {
 			living = [];
-			this.players.each(function(pl) {
+			Object.each(this.players, function(pl) {
 				living.push(pl);
 			});
 			this.living.each(function(l) {
@@ -70,7 +67,12 @@ Room = new Class({
 		if (!observer) return;
 		var lines = [];
 		observer.send(this.get('long'));
-		observer.send('Exits: '+this.get('exits').getKeys().join(', '), 'exits');
+		var exits = [];
+		Object.each(this.get('exits'), function(v,k) {
+			exits.push(k);
+		});
+		if (exits.length==0) observer.send('There are no obvious exits.', 'exits');
+		else observer.send('Exits: '+exits.join(', '), 'exits');
 		var living = [];
 		this.get('living').each(function(live) {
 			if (live!=observer) living.push(live.get('short'));
@@ -107,8 +109,7 @@ Room = new Class({
 	add_item: function(keyword, desc, aliases) {
 		this.desc_items[keyword] = desc;
 		var that = this;
-		var aliases = new Hash(aliases);
-		aliases.each(function(alias) { that.desc_items[alias] = keyword; });
+		Object.each(aliases, function(alias) { that.desc_items[alias] = keyword; });
 	},
 
 	getDetail: function(item) {

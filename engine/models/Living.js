@@ -122,7 +122,7 @@ Living = new Class({
 
 		if (you) {
 			var set = {};
-			new Hash(pronouns).each(function(v,k) {
+			Object.each(pronouns, function(v,k) {
 				set[k] = k;	
 			});
 			set.s = '';
@@ -155,20 +155,17 @@ Living = new Class({
 	},
 
 	setLocation: function(path) {
-		sys.puts("Setting location of "+this.name+" to "+path);
 		var room = this.world.getRoom(path);
 		if (!room) {
 			log_error("Can't find room for "+path);
 			return;
 		}
-		sys.puts(this.world.getRoom(path));
 		this.setRoom(this.world.getRoom(path));
 		this.location = path;
 	},
 
 	//moveTo Includes tracking which players are where.
 	moveTo: function(path) {
-		sys.puts("Transporting "+this.name+" to room "+path);
 		var room = this.world.getRoom(path);
 		if (!room) return false;
 		this.set('room', room);
@@ -218,7 +215,7 @@ Living = new Class({
 			log_error("Living "+this.name+" should have a room but does not!");
 			return;
 		}
-		this.get('room').get('players').each(function(player, name) {
+		Object.each(this.get('room').get('players'), function(player, name) {
 			//If it's not the current player, send the message with she or he.
 			if (player.name != me) player.send(my.genderize(message), style);
 			//Otherwise, use "you".
@@ -238,6 +235,9 @@ Living = new Class({
 	parseCommand: function(string) {
 
 		string = string.trim();
+
+		if (string=='__wait') return;
+
 		var params = string.split(' ');
 		var command = params.shift();
 		var out = '';
@@ -299,6 +299,10 @@ Living = new Class({
 		this.equipped.erase(item);
 	},
 
+	respondTo: function(player, keyword) {
+		if (this.talkMenu) this.world.enterMenu(this.talkMenu, player, this);
+	},
+
 /**
  * Fun things to implement if we have time later.
  */
@@ -311,8 +315,13 @@ Living = new Class({
 
 	},
 
-	freeze: function(duration)  {
+	freeze: function(turns)  {
+		if (!turns) unset(this.heartTimer);
+		turns.toInt().times(function() { this.perform('__wait'); });
+	},
 
+	unfreeze: function() {
+		this.startHeart();
 	},
 
 	passOut: function() {

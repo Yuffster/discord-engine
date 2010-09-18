@@ -2,6 +2,8 @@ new Class({
 
 	Extends: Living,
 
+	talkMenu: 'raver',
+
 	create: function() {
 
 		this.set_short('a lost raver');

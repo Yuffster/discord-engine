@@ -4,6 +4,7 @@ Player = new Class({
 	Extends: Living,
 	player: true,
 	currentPrompt: null,
+	promptBind: null,
 
 	//Default start location
 	location: 'lobby', 
@@ -27,8 +28,13 @@ Player = new Class({
 		this.send(message, style);
 	},
 
-	setPrompt: function(fun) {
+	setPrompt: function(fun, bind) {
+		this.promptBind = bind || this;
 		this.currentPrompt = fun;
+	},
+
+	getPrompt: function() {
+		return this.currentPrompt;
 	},
 
 	/**
@@ -36,7 +42,7 @@ Player = new Class({
 	 * so we don't need that method there.
 	 */
 	onInput: function(data) {
-		this.currentPrompt.bind(this)(data.trim());
+		this.currentPrompt.bind(this.promptBind)(data.trim());
 	},
 
 	/**
@@ -82,6 +88,14 @@ Player = new Class({
 			item.loadData(itm);
 			this.equipItem(item);
 		},this);
+	},
+
+	talkTo: function(npc) {
+		npc.respondTo(this);
+	},
+
+	enterMenu: function(menu, target) {
+		menu = new menu(this, target);
 	},
 
 	disconnect: function() {

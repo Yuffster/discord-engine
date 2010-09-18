@@ -1,32 +1,23 @@
 World = new Class({
 
 	Extends: Base,
-
 	players: {},
-
 	rooms: {},
-
 	commands: {},
-
 	items: {},
-
 	npcs: {},
-
+	menus: {},
+	failedFiles: [],
 	name: null,
-
 	basePath: null,
-
 	enginePath: 'engine/',
-
 	commandPath: 'commands/',
-
 	roomPath: 'rooms/',
-
 	itemPath: 'items/',
-
 	npcPath: 'npcs/',
-
 	savePath: 'saves/',
+	menuPath: 'menus/',
+	conversationPath: 'convos/',
 
 	/**
 	 * The name of the world will determine the path to the world's room and
@@ -35,9 +26,9 @@ World = new Class({
 	init: function(name) {
 		this.set('name', name);
 		this.basePath = name+'/';
-		this.players = new Hash(this.players);
-		this.rooms   = new Hash(this.rooms);
-		this.items   = new Hash(this.items);
+		this.players = this.players;
+		this.rooms   = this.rooms;
+		this.items   = this.items;
 	},
 
 	/**
@@ -81,7 +72,7 @@ World = new Class({
 	},
 
 	announce: function(message) {
-		this.players.each(function(player) {
+		Object.each(this.players, function(player) {
 			player.send(message);
 		});
 	},
@@ -108,6 +99,31 @@ World = new Class({
 				that.commands[command].path = path;
 			}, {'sync':true, 'rootPath':true});
 		} return this.commands[command];
+	},
+
+	/**
+	 * Target is optional.  In the event of a conversation, the target is
+	 * the NPC being conversed with.
+	 */
+	enterMenu: function(name, player, target) {
+		if (!name) return;
+		var that = this;
+		if (!this.menus[name]) {
+			var path;
+			//If there's a target, we'll assume it's a conversation.
+			if (target) path = this.conversationPath+name;
+			else path = this.menuPath+name;
+			require('worlds/discoworld/'+path+'.js');
+			this.loadFile(path, function(e,menu) {
+				sys.puts(menu);
+				if (e) log_error(e);
+				if (!menu) return;
+				that.menus[name] = menu;
+				player.enterMenu(menu, target);
+			});
+		} else {
+			player.enterMenu(this.menus[name], target);
+		}
 	},
 
 	loadItem: function(path) {
@@ -147,6 +163,10 @@ World = new Class({
 	 * I'm putting this function last because it's the ugliest.
 	 */
 	loadFile: function(path, callback, opts) {
+		//Stuff that will make us not want to load files.
+		if (path.match(/[^A-Za-z0-9\/-_.]/))  return;
+		if (this.failedFiles.contains(path)) return;
+
 		opts = opts || {};
 		var file = 'worlds/'+this.basePath+path+'.js';
 		if (opts.rootPath) file = path+'.js';
@@ -157,6 +177,7 @@ World = new Class({
 			var e = false;
 			if (!raw) {
 				e = "Failed to load file: "+file;
+				this.failedFiles.push(path);
 				log_error(e);
 			} else {
 				try { eval('data='+raw); }

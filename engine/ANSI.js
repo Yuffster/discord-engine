@@ -51,7 +51,7 @@ ANSI = {
 	},
 
 	'test': function() {
-		new Hash(this).each(function(code,color) {
+		Object.each(this, function(code,color) {
 			if (['get','test','prefix','suffix'].contains(color)) return;
 			sys.puts(ANSI.get(color)+"This line is "+color+"."+ANSI.get('reset'));
 		});

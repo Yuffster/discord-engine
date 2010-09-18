@@ -11,3 +11,4 @@ require('engine/models/Living');
 require('engine/models/Player');
 require('engine/models/Room');
 require('engine/models/World');
+require('engine/models/Conversation');

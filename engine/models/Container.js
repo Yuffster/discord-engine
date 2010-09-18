@@ -26,7 +26,7 @@ Container = new Class({
 
 	listItems: function(items) {
 		if (!items) items = this.items;
-		var clump = new Hash({});
+		var clump = {};
 		var shorts = {};
 		items.each(function(i) {
 			if (clump[i.short]) clump[i.short]++;
@@ -36,7 +36,7 @@ Container = new Class({
 			}
 		});
 		var strs = [];
-		clump.each(function(n,short) {
+		Object.each(clump, function(n,short) {
 			var i = shorts[short];
 			if (n==1) {
 				var article = i.get('determinate') || short.getArticle();

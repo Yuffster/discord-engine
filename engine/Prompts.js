@@ -25,7 +25,7 @@ Prompts = {
 		}
 		this.gender = (data=='m') ? 'male' : 'female';
 		this.enterWorld();
-		this.setPrompt(Prompts.command, '>');
+		this.prompt(Prompts.command);
 	},
 
 	password: function(data) {
