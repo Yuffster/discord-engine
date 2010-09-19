@@ -86,7 +86,7 @@ Living = new Class({
 			lines.push(this.genderize('%You %are carrying ', obsv)+
 			           this.listItems().conjoin()+'.');
 		}
-		if (lines.length==0) lines.push("%You have nothing.");
+		if (lines.length==0) lines.push("%You have nothing.", obsv);
 		return lines;
 	},
 
@@ -315,9 +315,13 @@ Living = new Class({
 
 	},
 
-	freeze: function(turns)  {
-		if (!turns) unset(this.heartTimer);
-		turns.toInt().times(function() { this.perform('__wait'); });
+	wait: function(turns)  {
+		var me = this;
+		turns.toInt().times(function() { me.force('__wait'); });
+	},
+
+	freeze: function() {
+		unset(this.heartTimer);
 	},
 
 	unfreeze: function() {
