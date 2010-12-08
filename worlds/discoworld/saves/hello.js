@@ -1,1 +1,0 @@
-{"location":"lobby","save":{},"items":[],"equipped":[]}
