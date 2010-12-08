@@ -224,7 +224,7 @@ Living = new Class({
 			third = my.get('short')+' '+message[1];
 		} else {
 			first = my.genderize(message, true);
-			third = my.genderize(mesage);
+			third = my.genderize(message);
 		}
 		Object.each(this.get('room').get('players'), function(player, name) {
 			//If this player isn't the emitter, use third person.
