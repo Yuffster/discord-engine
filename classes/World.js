@@ -211,7 +211,7 @@ World = new Class({
 				e = "File not found: "+file;
 				my.failedFiles.push(path);
 				/* Continue down our list of fallbacks. */
-				if (fallbacks.length) my.loadFile(fallbacks, callback, opts);
+				if (fallbacks.length>0) my.loadFile(fallbacks, callback, opts);
 				else log_error(e);
 			} else {
 				try { eval('data='+raw); }
@@ -224,9 +224,9 @@ World = new Class({
 			} catch (e) {
 				this.failedFiles.push(path);
 				/* Continue down our list of fallbacks. */
-				if (fallbacks.length) return this.loadFile(fallbacks, callback, opts);
+				if (fallbacks.length>0) return this.loadFile(fallbacks, callback, opts);
 				else return false;
-			}
+			} return handleData(false,data);
 		} else {
 			fs.readFile(file, handleData);
 		}
