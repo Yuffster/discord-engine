@@ -259,7 +259,9 @@ Living = new Class({
 			return this.force('look');
 		} else if (com){
 			params = params.join(' ');
-			out = com.execute.bind(this).pass(params,com)();
+			if (com.can_execute.bind(this)) {
+				out = com.execute.bind(this).pass(params,com)();
+			}
 		}
 
 		//The commands either have to return before this point or have
