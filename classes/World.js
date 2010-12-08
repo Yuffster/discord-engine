@@ -118,10 +118,12 @@ World = new Class({
 		if (!command) return;
 		var that = this;
 		if (!this.commands[command]) {
-			var path = this.enginePath+this.commandPath+command;
-			this.loadFile(path, function(e,com) {
+			/* First check the world, then check the engine. */
+			var world  = that.worldPath+this.commandPath+command; 
+			var engine = that.enginePath+this.commandPath+command;
+			this.loadFile([world, engine], function(e,com) {
 				that.commands[command] = new com(that);
-				that.commands[command].path = path;
+				//that.commands[command].path = path;
 			}, {'sync':true, 'rootPath':true});
 		} return this.commands[command];
 	},
@@ -186,36 +188,45 @@ World = new Class({
 	 * I'm putting this function last because it's the ugliest.
 	 */
 	loadFile: function(path, callback, opts) {
+
+		var fallbacks = [];
+		if (path.each) {
+			if (path.length==0) return;
+			fallbacks = path;
+			path      = fallbacks.shift()+"";
+		}
+
 		//Stuff that will make us not want to load files.
-		if (path.match(/[^A-Za-z0-9\/-_.]/))  return;
 		if (this.failedFiles.contains(path)) return;
 
 		opts = opts || {};
 		var file = this.worldPath+path+'.js';
 		if (opts.rootPath) file = path+'.js';
-		sys.puts("Loading file: "+file);
+
 		var my = this;
 		var handleData = function(e,raw) {
 			data = false;
 			if (e) log_error(e);
-			var e = false;
 			if (!raw) {
-				e = "Failed to load file: "+file;
+				e = "File not found: "+file;
 				my.failedFiles.push(path);
-				log_error(e);
+				/* Continue down our list of fallbacks. */
+				if (fallbacks.length) my.loadFile(fallbacks, callback, opts);
+				else log_error(e);
 			} else {
 				try { eval('data='+raw); }
 				catch (e) { e = e; }
-			}
-			callback(e, data);
+			} callback(e, data);
 		};
 		if (opts.sync) {
 			try {
 				var data = fs.readFileSync(file);
 			} catch (e) {
-				return false;
+				this.failedFiles.push(path);
+				/* Continue down our list of fallbacks. */
+				if (fallbacks.length) return this.loadFile(fallbacks, callback, opts);
+				else return false;
 			}
-			return handleData(false,data);
 		} else {
 			fs.readFile(file, handleData);
 		}
