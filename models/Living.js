@@ -86,7 +86,6 @@ Living = new Class({
 			lines.push(this.genderize('%You %are carrying ', obsv)+
 			           this.listItems().conjoin()+'.');
 		}
-		if (lines.length==0) lines.push("%You have nothing.", obsv);
 		return lines;
 	},
 
@@ -210,16 +209,28 @@ Living = new Class({
 	 */
 	emit: function(message, style) {
 		var my = this;
-		var me = this.name;
+		var me = (this.player) ? this.name : '';
 		if (!this.get('room')) {
 			log_error("Living "+this.name+" should have a room but does not!");
 			return;
 		}
+		var first, third;
+		/**
+		 * If an array is passed as the first argument, use those as first-
+		 * and third-person messages.
+		 */
+		if (message.each) {
+			first = message[0];
+			third = my.get('short')+' '+message[1];
+		} else {
+			first = my.genderize(message, true);
+			third = my.genderize(mesage);
+		}
 		Object.each(this.get('room').get('players'), function(player, name) {
-			//If it's not the current player, send the message with she or he.
-			if (player.name != me) player.send(my.genderize(message), style);
-			//Otherwise, use "you".
-			else player.send(my.genderize(message, true), style);
+			//If this player isn't the emitter, use third person.
+			if (player.name != me) player.send(third, style);
+			//Otherwise, use first.
+			else player.send(first, style);
 		});
 	},
 

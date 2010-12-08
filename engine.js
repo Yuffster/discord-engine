@@ -1,0 +1,14 @@
+require('English');
+require('ANSI');
+require('Styles');
+require('Prompts');
+require('Messages');
+require('models/Base');
+require('models/Command');
+require('models/Container');
+require('models/Item');
+require('models/Living');
+require('models/Player');
+require('models/Room');
+require('models/World');
+require('models/Conversation');

@@ -2,12 +2,11 @@ Player = new Class({
 
 
 	Extends: Living,
+
 	player: true,
 	currentPrompt: null,
 	promptBind: null,
-
-	//Default start location
-	location: 'lobby', 
+	location: '', 
 
 	/**
 	 * The main engine will add an event to the player object to output data.
@@ -16,7 +15,7 @@ Player = new Class({
 		if (!message) return;
 		if (!message.each) message = [message];
 		message.each(function(line) {
-			if (!line) return;
+			if (!line || !line.charAt) return;
 		    var f = line.charAt(0).toUpperCase();
 			line  = f + line.substr(1);
 			this.fireEvent('output', [line,style]);

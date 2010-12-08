@@ -1,34 +1,58 @@
+/**
+ * The World class is the main game driver.  It determines which files to load
+ * and from where, stores all rooms and objects, handles loading of rooms and
+ * objects, saves player data, etc.
+ *
+ * @author Michelle Steigerwalt <msteigerwalt.com>
+ * @copyright 2010 Michelle Steigerwalt.
+ */
 World = new Class({
 
 	Extends: Base,
-	players: {},
-	rooms: {},
-	commands: {},
-	items: {},
-	npcs: {},
-	menus: {},
-	failedFiles: [],
-	name: null,
-	basePath: null,
-	enginePath: 'engine/',
-	commandPath: 'commands/',
-	roomPath: 'rooms/',
-	itemPath: 'items/',
-	npcPath: 'npcs/',
-	savePath: 'saves/',
-	menuPath: 'menus/',
-	conversationPath: 'convos/',
+
+	players     : {},
+	rooms       : {},
+	commands    : {},
+	items       : {},
+	npcs        : {},
+	menus       : {},
+
+	failedFiles : [],
+
+	config      : {},
+	name        : null,
+	worldPath   : null,
+	defaultRoom : '',
+
+	enginePath  : './',
+	commandPath : 'commands/',
+	roomPath    : 'rooms/',
+	itemPath    : 'items/',
+	npcPath     : 'npcs/',
+	savePath    : 'saves/',
+	menuPath    : 'menus/',
+	scriptPath  : 'convos/',
+
 
 	/**
 	 * The name of the world will determine the path to the world's room and
 	 * object files.
 	 */
-	init: function(name) {
-		this.set('name', name);
-		this.basePath = name+'/';
-		this.players = this.players;
-		this.rooms   = this.rooms;
-		this.items   = this.items;
+	init: function(config) {
+		var required = ['name', 'world_path', 'start_room', 'port'];
+		required.each(function(key) {
+			if (!config[key]) {
+				sys.puts("Required config option \""+key+"\" not supplied.");
+				process.exit();
+			}
+		});
+		this.set('name', config.name);
+		this.config      = config;
+		this.worldPath   = config.world_path+'/';
+		this.defaultRoom = config.start_room;
+		this.players     = this.players;
+		this.rooms       = this.rooms;
+		this.items       = this.items;
 	},
 
 	/**
@@ -43,15 +67,16 @@ World = new Class({
 
 	loadPlayerData: function(player) {
 		var path = this.savePath+player.name;
+		var my   = this;
 		this.loadFile(path, function(e,data) {
-			if (!data) player.set('location','lobby');
+			if (!data) player.set('location', my.defaultRoom);
 			else player.loadData(data);
 			player.force('look');
 		});
 	},
 
 	savePlayer: function(player) {
-		var file = 'worlds/'+this.basePath+this.savePath+player.name+'.js';
+		var file = this.worldPath+this.savePath+player.name+'.js';
 		var dump = player.dump();
 		if (!dump) return false;
 		var json = JSON.encode(dump);
@@ -93,7 +118,7 @@ World = new Class({
 		if (!command) return;
 		var that = this;
 		if (!this.commands[command]) {
-			var path = 'engine/'+this.commandPath+command;
+			var path = this.enginePath+this.commandPath+command;
 			this.loadFile(path, function(e,com) {
 				that.commands[command] = new com(that);
 				that.commands[command].path = path;
@@ -111,11 +136,9 @@ World = new Class({
 		if (!this.menus[name]) {
 			var path;
 			//If there's a target, we'll assume it's a conversation.
-			if (target) path = this.conversationPath+name;
+			if (target) path = this.scriptPath+name;
 			else path = this.menuPath+name;
-			require('worlds/discoworld/'+path+'.js');
 			this.loadFile(path, function(e,menu) {
-				sys.puts(menu);
 				if (e) log_error(e);
 				if (!menu) return;
 				that.menus[name] = menu;
@@ -168,16 +191,17 @@ World = new Class({
 		if (this.failedFiles.contains(path)) return;
 
 		opts = opts || {};
-		var file = 'worlds/'+this.basePath+path+'.js';
+		var file = this.worldPath+path+'.js';
 		if (opts.rootPath) file = path+'.js';
 		sys.puts("Loading file: "+file);
+		var my = this;
 		var handleData = function(e,raw) {
 			data = false;
 			if (e) log_error(e);
 			var e = false;
 			if (!raw) {
 				e = "Failed to load file: "+file;
-				this.failedFiles.push(path);
+				my.failedFiles.push(path);
 				log_error(e);
 			} else {
 				try { eval('data='+raw); }
