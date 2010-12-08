@@ -50,6 +50,9 @@ World = new Class({
 		this.config      = config;
 		this.worldPath   = config.world_path+'/';
 		this.defaultRoom = config.start_room;
+
+		this.loadFile('initialize');
+
 		this.players     = this.players;
 		this.rooms       = this.rooms;
 		this.items       = this.items;
@@ -188,6 +191,8 @@ World = new Class({
 	 * I'm putting this function last because it's the ugliest.
 	 */
 	loadFile: function(path, callback, opts) {
+
+		if (!callback) callback = function() { };
 
 		var fallbacks = [];
 		if (path.each) {
