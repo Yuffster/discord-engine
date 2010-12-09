@@ -59,7 +59,8 @@ Player = new Class({
 			'location': this.location,
 			'save': this.save,
 			'items': [],
-			'equipped': []
+			'equipped': [],
+			'stats': this.dumpStats()
 		};
 		this.items.each(function(item) {
 			obj.items.push(item.dump());
@@ -73,6 +74,7 @@ Player = new Class({
 	loadData: function(dump) {
 		this.set('location', dump.location);
 		this.save = dump.save;
+		this.loadStats(dump.stats);
 		dump.items.each(function(itm) {
 			if (!itm.path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
 			var item = this.world.loadItem(itm.path);

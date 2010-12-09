@@ -31,6 +31,12 @@ Room = new Class({
 		delete(this.players[player.name.toLowerCase()]);
 	},
 
+	removeLiving: function(living) {
+		living.room = false;
+		if (living.player) this.removePlayer(living);
+		else this.living.erase(living);
+	},
+
 	getPlayer: function(name) {
 		return this.players[name.toLowerCase()] || false;
 	},

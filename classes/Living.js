@@ -2,7 +2,7 @@ Living = new Class({
 
 	Extends: Base,
 
-	Implements: [Events,Options,Container],
+	Implements: [Events, Options, Container, CombatStandard],
 
 	//The name of the living when seen in a list of things.
 	short: null,
@@ -185,8 +185,10 @@ Living = new Class({
 	 * their heart should KEEP beating).
 	 */
 	beatHeart: function() {
-		if (this.queue.length>0) this.callNextAction();
+		if (this.callNextAction()) return true;
 		else this.doChat();
+		this.regen();
+		this.checkStats();
 	},
 
 	/**
@@ -194,7 +196,7 @@ Living = new Class({
 	 * This will cause the player to become dead.
 	 */
 	stopHeart: function() {
-		unset(this.heartTimer);
+		this.heartTimer = null;
 		this.fireEvent('death');
 	},
 
@@ -245,6 +247,8 @@ Living = new Class({
 
 	parseCommand: function(string) {
 
+		if (!string) return;
+
 		string = string.trim();
 
 		if (string=='__wait') return;
@@ -277,7 +281,11 @@ Living = new Class({
 	},
 
 	callNextAction: function() {
-		var response = this.parseCommand(this.queue.shift());
+		if (this.queue.length) {
+			return this.parseCommand(this.queue.shift());
+		} else if (this.target) {
+			return this.combatTurn();
+		}
 	},
 
 	/**
