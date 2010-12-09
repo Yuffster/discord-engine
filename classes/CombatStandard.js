@@ -32,6 +32,7 @@ CombatStandard = new Class({
 	getHeartrate: function() {
 		var rate = Math.floor(this.speed/5);
 		if (rate<1) rate = 1;
+		if (rate>5) rate = 5;
 		return rate;
 	},
 
