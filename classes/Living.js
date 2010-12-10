@@ -185,10 +185,11 @@ Living = new Class({
 	 * their heart should KEEP beating).
 	 */
 	beatHeart: function() {
-		if (this.callNextAction()) return true;
-		else this.doChat();
-		this.regen();
 		this.checkStats();
+		if (this.callNextAction()) return true;
+		//If no action is queued, do a chat and rest.
+		this.doChat();
+		this.rest();
 	},
 
 	/**
@@ -213,7 +214,7 @@ Living = new Class({
 		var my = this;
 		var me = (this.player) ? this.name : '';
 		if (!this.get('room')) {
-			log_error("Living "+this.name+" should have a room but does not!");
+			log_error("Living "+this.get('short')+" should have a room but does not!");
 			return;
 		}
 		var first, third;

@@ -145,8 +145,8 @@ CombatStandard = new Class({
 	},
 
 	/** Happens once a heartbeat if nothing is queued. **/
-	regen: function() {
-		if (this.getHP() < this.getMaxHP) this.stats.hp++;
+	rest: function() {
+		if (this.getHP() < this.getMaxHP()) this.stats.hp++;
 	},
 
 	takeDamage: function(points, type) {

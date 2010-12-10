@@ -55,10 +55,9 @@ Combat = new Class({
 	},
 
 	/**
-	 * This happens every heartbeat.  It's meant to be used to regenerate (or
-	 * degenerate) player stats.
+	 * This happens every heartbeat during which an action isn't queued.
 	 */
-	regen: function() {
+	rest: function() {
 		return;
 	},
 
@@ -88,6 +87,14 @@ Combat = new Class({
 	 */
 	loadStats: function(stats) {
 		return false;
-	}
+	},
+
+	/**
+	 * Happens once a heartbeat.  Can be used to apply poison effects, regulate 
+	 * blood loss, etc.
+	 */
+	 checkStats: function() {
+
+	 }
 	
 });
