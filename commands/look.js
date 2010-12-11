@@ -6,6 +6,7 @@ exports.command = new Class({
 		obj = obj.toLowerCase();
 		if (obj=='me') obj = this.get('name');
 		var room = this.get('room');
+		if (!room) return "You don't appear to be anywhere!";
 		var reply = [];
 		if (!obj) {
 			return room.getDescription(this);
