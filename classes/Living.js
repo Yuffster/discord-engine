@@ -176,7 +176,7 @@ Living = new Class({
 	 * next command in the action queue will be called.
 	 */
 	startHeart: function() {
-		this.heartTimer = (function(){ this.beatHeart(); }).periodical(1000, this);
+		this.heartTimer = this.beatHeart.periodical(1000, this);
 	},
 
 	/**
@@ -193,12 +193,13 @@ Living = new Class({
 	},
 
 	/**
-	 * The heart should be stopped when the player's hit points are below 0.
-	 * This will cause the player to become dead.
+	 * Stops the character from acting.  Should happen upon death, but
+	 * heartbeat should NOT be confused with a physical, game-mechanic
+	 * heartbeat.
 	 */
 	stopHeart: function() {
+		clearTimeout(this.heartTimer);
 		this.heartTimer = null;
-		this.fireEvent('death');
 	},
 
 	/**
