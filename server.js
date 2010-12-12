@@ -22,7 +22,6 @@ require.paths.push('../');
 
 sys = require('sys');
 fs  = require('fs');
-require('lib/mootools').apply(GLOBAL);
 require('engine');
 
 /**
@@ -70,12 +69,12 @@ var server = net.createServer(function (stream) {
 
 	/* Error handling, notifies admins of errors. */
 	stream.on('uncaughtException', function (message) {
-		if (player.admin) { player.send("ERROR: ".color('red')+message); }
+		player.send("ERROR: ".color('red')+message);
 	});
 
 	player.addEvent('output', function(message, style) {
 		if (!stream.writable) return;
-		stream.write(message.style(style)+"\r\n");
+		stream.write(message.style(style).wordwrap(80)+"\r\n");
 	});
 
 	player.addEvent('quit', function() { stream.end(); });

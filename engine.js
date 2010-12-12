@@ -1,3 +1,5 @@
+require('lib/mootools').apply(GLOBAL);
+require('classes/String');
 require('classes/English');
 require('classes/ANSI');
 require('classes/Styles');
