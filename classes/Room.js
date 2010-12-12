@@ -14,11 +14,6 @@ Room = new Class({
 		this.create();
 	},
 
-	add_living: function(path) {
-		var npc = this.world.loadNPC(path);
-		npc.set('room', this);
-	},
-	
 	addPlayer: function(player) {
 		this.players[player.name.toLowerCase()] = player;
 	},
@@ -73,30 +68,55 @@ Room = new Class({
 		if (!observer) return;
 		var lines = [];
 		observer.send(this.get('long'));
+
 		var exits = [];
 		Object.each(this.get('exits'), function(v,k) {
 			exits.push(k);
 		});
 		if (exits.length==0) observer.send('There are no obvious exits.', 'exits');
 		else observer.send('Exits: '+exits.join(', '), 'exits');
+		
+		var living = this.listLiving(observer);
+		lines.push(
+			living.join(', ') +
+			(living.length>1 ? " are" : " is") + " standing here."
+		);
+
+		var items = this.listItems();
+		if (items.length>0){
+			lines.push(
+				items.join(', ') +
+				(items.length>1 ? " are" : " is")
+				+ " on the ground."
+			);
+		}
+
+		return lines;
+	},
+
+	listLiving: function(observer) {
 		var living = [];
 		this.get('living').each(function(live) {
-			if (live!=observer) living.push(live.get('short'));
+			if (live!=observer) living.push(live.get('indefinite'));
 		});
 		if (living.length>0) {
 			if (living.length>1) {
 				var last = living.getLast();
 				living[living.length-1] = 'and '+last;
 				living[living.length-2] = living[living.length-2].replace(/, $/, ' ');
-			}
-			lines.push(living.join(', ') + (living.length>1 ? " are" : " is") + " standing here.");
+			} return living;
 		}
-		var items = this.listItems();
-		if (items.length>0){
-			if (items.length>1) items[items.length-1] = 'and '+items.getLast();
-			lines.push(items.join(', ') + (items.length>1 ? " are" : " is") + " on the ground.");
-		}
-		return lines;
+	},
+
+	listExits: function(observer) {
+
+	},
+
+	listItems: function() {
+		var items = this.items;
+		if (items.length>1) {
+			items[items.length-1] = 'and '+items.getLast();
+		} return items;
 	},
 
 	set_short: function(short) {
@@ -106,9 +126,24 @@ Room = new Class({
 	set_long: function(long) {
 		this.long = long;
 	},
+	
+	set_type: function(txt) {
+		//Placeholder for now -- ideally, this would load the class file for a
+		//specific room type and implement it.
+		this.type = txt;
+	},
+
+	set_light: function(n) {
+
+	},
 
 	add_exit: function(dir, loc) {
 		this.exits[dir] = loc;
+	},
+
+	add_living: function(path) {
+		var npc = this.world.loadNPC(path);
+		npc.set('room', this);
 	},
 
 	//add an item view inside the room desc. LPC naming style.
@@ -123,8 +158,8 @@ Room = new Class({
 	},
 
 	create: function() {
-		this.set_short("Empty place")
-		this.set_long("This room is broken. Pretend you didn't see it")
+		this.set_short("empty place");
+		this.set_long("This room is broken. Pretend you didn't see it");
 	}
 	
 });

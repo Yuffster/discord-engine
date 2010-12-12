@@ -109,11 +109,11 @@ World = new Class({
 		if (!path) return;
 		var that = this;
 		if (!this.rooms[path]) {
-			var file = this.roomPath+path;
-			this.loadFile(file, function(e,room) {
-				that.rooms[path] = new room(that);
-				that.rooms[path].path = path;
-			}, {'sync':true});
+			var room = this.loadModule(this.roomPath+path);
+			if (room) {
+				this.rooms[path]      = new room(this);
+				this.rooms[path].path = path;
+			}
 		} return this.rooms[path];
 	},
 
@@ -126,7 +126,6 @@ World = new Class({
 			var engine = that.enginePath+this.commandPath+command;
 			this.loadFile([world, engine], function(e,com) {
 				that.commands[command] = new com(that);
-				//that.commands[command].path = path;
 			}, {'sync':true, 'rootPath':true});
 		} return this.commands[command];
 	},
@@ -155,36 +154,66 @@ World = new Class({
 	},
 
 	loadItem: function(path) {
-		if (!path) return;
-		var that = this;
+		if (!path) { return; }
 		if (!this.items[path]) {
 			var file = this.itemPath+path;
-			this.loadFile(file, function(e,item) {
-				item.implement({'path':path});
-				that.items[path] = item;
-			}, {'sync':true});
+			var obj  = this.loadModule(file);
+			if (!obj) { return false; }
+			//obj.implement({'path':path});
+			this.items[path] = obj;
 		} 
-		if (this.items[path]) return new this.items[path]();
-		return false;
+		sys.puts(new this.items[path]());
+		return new this.items[path]();
 	},
 
 	loadNPC: function(path) {
+
 		if (!path) return;
 		if (!this.npcs[path]) {
 			var file = this.npcPath+path;
 			var that = this;
-			if (!this.npcs[path]) {
-				this.loadFile(file, function(e,item) {
-					item.implement({'path':path});
-					that.npcs[path] = item;
-				}, {'sync':true});
-			} 
+			var npc = this.loadModule(file);
+			if (npc) {
+				this.npcs[path] = npc;
+			} else {
+				return false;
+			}
 		}
-		if (!this.npcs[path]) return false;
-		var npc   = new this.npcs[path]();
-		npc.path  = path;
-		npc.world = this;
-		return npc;
+
+		//Create one and return it.
+		var mob   = new this.npcs[path]();
+		mob.path  = path;
+		mob.world = this;
+		return mob;
+
+	},
+
+	loadModule: function(path, opts) {
+
+		var fallbacks = [];
+		if (path.each) {
+			if (path.length==0) return;
+			fallbacks = path;
+			path      = fallbacks.shift()+"";
+		}
+
+		if (!path) { return false; }
+
+		opts = opts || {};
+		var file = this.worldPath+path;
+		if (opts.rootPath) file = path;
+
+		try {
+			var mod = require(file);
+			if (mod.main) {
+				return mod.main;
+			} return mod;
+		} catch (e) {
+			if (fallbacks.length) {
+				return this.loadModule(fallbacks, opts);
+			} return false;
+		}
+
 	},
 
 	/** 

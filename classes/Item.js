@@ -32,6 +32,11 @@ Item = new Class({
 		this.aliases.push(alias);
 	},
 
+	/* TODO: Implement this. */
+	add_command: function(comm, fun, delim) {
+
+	},
+
 	add_adjective: function(adj) {
 		this.adjectives.push(adj);
 	},
@@ -45,16 +50,24 @@ Item = new Class({
 	},
 
 	on_equip: function() {
-
 	},
 
 	on_remove: function() {
-
 	},
 
-	getDeterminate: function() {
-		if (this.determinate) return this.determinate;
-		else return this.short.getArticle();
+	on_drop: function() {
+	},
+
+	getDefinite: function() {
+		var det = this.get('determinate') || 'the ';
+		if (this.owner.getItem(this.get('short'))) {
+			return "one of "+det+" "+short.pluralize();
+		} return det+this.get('short');
+	},
+
+	getIndefinite: function() {
+		var short = this.get('short');
+		return short.getArticle()+' '+short;
 	},
 
 	getDescription: function(observer) {
@@ -63,7 +76,7 @@ Item = new Class({
 
 	getShort: function() {
 		if (this.short) return this.get('determinate')+' '+this.short;
-		return 'thing';
+		return 'a thing';
 	},
 
 	getNoun: function() {

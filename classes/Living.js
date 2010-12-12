@@ -52,12 +52,12 @@ Living = new Class({
 		this.short = short;
 	},
 
-	getShort: function(short) {
-		return this.name || this.short || "a thing";
-	},
-
 	set_long: function(long) {
 		this.long = long;
+	},
+
+	set_determinate: function(det) {
+		this.determinate = det;
 	},
 
 	add_alias: function(alias) {
@@ -99,10 +99,29 @@ Living = new Class({
 		return reply;
 	},
 
+	getShort: function(short) {
+		return this.name || this.short || "a thing";
+	},
+
+	getDefinite: function() {
+		if (this.player) { return this.name; }
+		var det = this.get('determinate') || 'the ';
+		if (this.room.getLiving(this.get('short'))) {
+			return "one of "+det+" "+short.pluralize();
+		} return det+this.get('short');
+	},
+
+	getIndefinite: function() {
+		if (this.player) { return this.name; }
+		var short = this.get('short');
+		return short.getArticle()+' '+short;
+	},
+
 	genderize: function(str, you) {
 
 		var male = (this.gender=='male');
-		var name = this.get('name');
+		var name = this.get('definite');
+
 		var pronouns = {
 			'you'   : (male) ? 'he'  : 'she',
 			'You'   : name, //(male) ? 'He'  : 'She',
@@ -134,7 +153,7 @@ Living = new Class({
 
 		match.each(function(k) {
 			var k = k.replace(/^%/, '');
-			if (typeof pronouns[k] !== 'undefined') str = str.replace('%'+k, pronouns[k]);
+			if (pronouns[k]!==undefined) str = str.replace('%'+k, pronouns[k]);
 		});
 
 		return str;
@@ -150,6 +169,7 @@ Living = new Class({
 	},
 	
 	getRoom: function() {
+		if (!this.room) return false;
 		return this.room;
 	},
 
@@ -213,7 +233,7 @@ Living = new Class({
 	 */
 	emit: function(message, style) {
 		var my = this;
-		var me = (this.player) ? this.name : '';
+		var me = this.get('short');
 		if (!this.get('room')) {
 			log_error("Living "+this.get('short')+" should have a room but does not!");
 			return;
@@ -224,17 +244,17 @@ Living = new Class({
 		 * and third-person messages.
 		 */
 		if (message.each) {
-			first = message[0];
+			second = message[0];
 			third = my.get('short')+' '+message[1];
 		} else {
-			first = my.genderize(message, true);
-			third = my.genderize(message);
+			second = my.genderize(message, this);
+			third  = my.genderize(message);
 		}
 		Object.each(this.get('room').get('players'), function(player, name) {
 			//If this player isn't the emitter, use third person.
 			if (player.name != me) player.send(third, style);
-			//Otherwise, use first.
-			else player.send(first, style);
+			//Otherwise, use second.
+			else player.send(second, style);
 		});
 	},
 
@@ -300,6 +320,36 @@ Living = new Class({
 /**
  * Item-related stuff (equipment).
  */
+
+	/* Triggered when someone gives this character something. */
+	on_get: function(item, source) { return; },
+
+	giveItem: function(item, target) {
+
+		//Check to see if there's a on_drop function on the item (for cursed
+		//items and the like).
+		var success = item.on_drop(this);
+		if (success===false) { return false; }
+
+		//Remove this item from the giver's inventory.
+		this.removeItem(item);
+		target.addItem(item);
+		target.on_get(item, this);
+
+		return true;
+
+	},
+
+	getItem: function(name) {
+		if (this.equipped && this.getEquippedItem(name)) {
+			return this.getEquippedItem(name);
+		}
+		var item = false;
+		this.items.each(function(i){
+			if (!item && i.matches(name)) item = i;
+		});
+		return item;
+	},
 
 	getEquippedItem: function(name) {
 		var name = name.split(' ')[0];
