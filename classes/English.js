@@ -27,6 +27,10 @@ String.implement({
 		return str;
 	},
 
+	pluralize: function() {
+		return this.getPlural();
+	},
+
 	/**
 	 * Converts a string and its placeholders to plain text.
 	 */
@@ -37,10 +41,14 @@ String.implement({
 			gender: actor.gender
 		};
 
-		var t = {
-			name: target.get('definite'),
-			gender: target.gender
-		};
+		var t = {};
+		if (target) {
+			t.name = target.get('definite');
+			t.gender = target.get('gender');
+		} else {
+			t.name = 'NULL';
+			t.gender = 0;
+		}
 
 		var pronouns = {
 			sub:  ['it', 'he', 'she'],
@@ -52,23 +60,24 @@ String.implement({
 
 		Object.each(pronouns, function(v,k) {
 			a[k] = v[a.gender];
-			t[k] = v[t.gender];
+			if (target) { t[k] = v[t.gender]; }
 		});
 
 		//Replacements: what the actor sees and what the target sees.
 		var actor_tags = {
 			'You'      : ['You',      a.name],
+			"yourself" : ["yourself", a.ref],
 			"your"     : ["your",     a.pos],
 			'you'      : ['you',      a.sub],
 			'thee'     : ['you',      a.obj],
 			"yours"    : ["yours",    a.hers],
 			"Your"     : ["Your",     a.name+"'s"],
-			"yourself" : ["yourself", a.ref],
 			'has'      : ['have',     'has'],
 			'is'       : ['are',      'is']
 		};
 
 		var target_tags = {
+			'Name'     : ['You',      t.name],
 			'They'     : ['You',      t.name],
 			'Name'     : ['you',      t.name],
 			'they'     : ['you',      t.sub],
@@ -101,7 +110,9 @@ String.implement({
 			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
 			if (!str.match(tag)) { return; }
 			str_actor  = str_actor.replace(tag, replace[0]+"$1");
-			str_target = str_target.replace(tag, replace[1]+"$1");
+			if (target) {
+				str_target = str_target.replace(tag, replace[1]+"$1");
+			}
 			str_others = str_others.replace(tag, replace[1]+"$1");
 		});
 
@@ -109,25 +120,38 @@ String.implement({
 			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
 			if (!str.match(tag)) { return; }
 			str_actor  = str_actor.replace(tag, replace[0]+"$1");
-			str_target = str_target.replace(tag, replace[1]+"$1");
+			if (target) {
+				str_target = str_target.replace(tag, replace[1]+"$1");
+			}
 			str_others = str_others.replace(tag, replace[1]+"$1");
 		});
 
-		Object.each(target_suffixes, function(replace, tag) {
-			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
-			if (!str.match(tag)) { return; }
-			str_actor  = str_actor.replace(tag, replace[1]+"$1");
-			str_target = str_target.replace(tag, replace[0]+"$1");
-			str_others = str_others.replace(tag, replace[1]+"$1");
-		});
+		//No need to waste time processing target tags if there's no target.
+		if (target) {
 
-		Object.each(target_tags, function(replace, tag) {
-			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
-			if (!str.match(tag)) { return; }
-			str_actor  = str_actor.replace(tag, replace[1]+"$1");
-			str_target = str_target.replace(tag, replace[0]+"$1");
-			str_others = str_others.replace(tag, replace[1]+"$1");
-		});
+			Object.each(target_suffixes, function(replace, tag) {
+				var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+				if (!str.match(tag)) { return; }
+				str_actor  = str_actor.replace(tag, replace[1]+"$1");
+				if (target) {
+					str_target = str_target.replace(tag, replace[0]+"$1");
+				}
+				str_others = str_others.replace(tag, replace[1]+"$1");
+			});
+
+			Object.each(target_tags, function(replace, tag) {
+				var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+				if (!str.match(tag)) { return; }
+				str_actor  = str_actor.replace(tag, replace[1]+"$1");
+				if (target) {
+					str_target = str_target.replace(tag, replace[0]+"$1");
+				}
+				str_others = str_others.replace(tag, replace[1]+"$1");
+			});
+
+		} else {
+			str_target = str_others;
+		}
 
 		strs = [str_actor, str_target, str_others];
 

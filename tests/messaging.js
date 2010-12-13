@@ -104,4 +104,26 @@ Object.each(examples, function(expected,mess) {
 
 });
 
+var untargeted = {
+	"%You dance%s with %yourself.": [
+		'You dance with yourself.',
+		'Jack dances with himself.',
+		'Jack dances with himself.'
+	]
+}
+
+Object.each(untargeted, function(expected,mess) {
+
+	expectations["Untargeted: "+mess] = function() {
+
+		var result = mess.expand(actor);
+		expected.each(function(str,i) {
+			assert.equal(str, result[i], "\nExpected: \n\t"+str+"\nResult: \n\t"+result[i]);
+		});
+
+	}
+
+});
+
+
 describe('message expansion', expectations);
