@@ -59,7 +59,7 @@ Living = new Class({
 	},
 
 	set_determinate: function(det) {
-		this.determinate = det || '';
+		this.determinate = det;
 	},
 
 	add_alias: function(alias) {
@@ -110,7 +110,7 @@ Living = new Class({
 		var det = this.get('determinate');
 		if (!det) { return this.get('short'); }
 		if (this.room && this.room.getLiving(this.get('short'))) {
-			return "one of "+det+" "+short.pluralize();
+			return "one of "+det+short.pluralize();
 		} return det+this.get('short');
 	},
 
