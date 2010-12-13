@@ -10,7 +10,9 @@ Living = new Class({
 	//The description of the living seen when examined.
 	long: null,
 
-	gender: 'male', //OMG SEXIST!!!!!ONE!!!!
+	determinate: 'the ',
+
+	gender: 0, //0: Neutral, 1: male, 2: female
 
 	//The UNIQUE name of this living.
 	name: null,
@@ -57,7 +59,7 @@ Living = new Class({
 	},
 
 	set_determinate: function(det) {
-		this.determinate = det;
+		this.determinate = det || '';
 	},
 
 	add_alias: function(alias) {
@@ -105,8 +107,9 @@ Living = new Class({
 
 	getDefinite: function() {
 		if (this.player) { return this.name; }
-		var det = this.get('determinate') || 'the ';
-		if (this.room.getLiving(this.get('short'))) {
+		var det = this.get('determinate');
+		if (!det) { return this.get('short'); }
+		if (this.room && this.room.getLiving(this.get('short'))) {
 			return "one of "+det+" "+short.pluralize();
 		} return det+this.get('short');
 	},

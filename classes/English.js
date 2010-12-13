@@ -25,6 +25,123 @@ String.implement({
 		if (str==this) str = str.replace(/([ch|sh|x|s|o])$/, '$1es');
 		if (str==this) str += 's';
 		return str;
+	},
+
+	/**
+	 * Converts a string and its placeholders to plain text.
+	 */
+	expand: function(actor, target, vars) {
+
+		var a = {
+			name: actor.get('definite'),
+			gender: actor.gender
+		};
+
+		var t = {
+			name: target.get('definite'),
+			gender: target.gender
+		};
+
+		var pronouns = {
+			sub:  ['it', 'he', 'she'],
+			obj:  ['it', 'him', 'her'],
+			pos:  ['its', 'his', 'her'],
+			ref:  ['itself', 'himself', 'herself'],
+			hers: ['its', 'his', 'hers']
+		};
+
+		Object.each(pronouns, function(v,k) {
+			a[k] = v[a.gender];
+			t[k] = v[t.gender];
+		});
+
+		//Replacements: what the actor sees and what the target sees.
+		var actor_tags = {
+			'You'      : ['You',      a.name],
+			"your"     : ["your",     a.pos],
+			'you'      : ['you',      a.sub],
+			'thee'     : ['you',      a.obj],
+			"yours"    : ["yours",    a.hers],
+			"Your"     : ["Your",     a.name+"'s"],
+			"yourself" : ["yourself", a.ref],
+			'has'      : ['have',     'has'],
+			'is'       : ['are',      'is']
+		};
+
+		var target_tags = {
+			'They'     : ['You',      t.name],
+			'Name'     : ['you',      t.name],
+			'they'     : ['you',      t.sub],
+			'them'     : ['you',      t.obj],
+			"theirs"   : ["yours",    t.hers],
+			"their"    : ["your",     t.pos],
+			"Their"    : ["your",     t.name+"'s"],
+			"themself" : ["yourself", t.ref],
+			'HAS'      : ['have',     'has'],
+			'IS'       : ['are',      'is']
+		};
+
+		var actor_suffixes = {
+			's'        : ['', 's'],
+			'es'       : ['', 'es'],
+			'ies'      : ['y', 'ies'],
+			"'s"       : ["'re'", "'s"]
+		};
+
+		var target_suffixes = {
+			'S'        : ['', 's'],
+			'ES'       : ['', 'es'],
+			'IES'      : ['y', 'ies'],
+			"'S"       : ["'re", "'s"]
+		};
+
+		var str = this, str_actor = this, str_target=this, str_others=this;
+
+		Object.each(actor_suffixes, function(replace, tag) {
+			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+			if (!str.match(tag)) { return; }
+			str_actor  = str_actor.replace(tag, replace[0]+"$1");
+			str_target = str_target.replace(tag, replace[1]+"$1");
+			str_others = str_others.replace(tag, replace[1]+"$1");
+		});
+
+		Object.each(actor_tags, function(replace, tag) {
+			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+			if (!str.match(tag)) { return; }
+			str_actor  = str_actor.replace(tag, replace[0]+"$1");
+			str_target = str_target.replace(tag, replace[1]+"$1");
+			str_others = str_others.replace(tag, replace[1]+"$1");
+		});
+
+		Object.each(target_suffixes, function(replace, tag) {
+			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+			if (!str.match(tag)) { return; }
+			str_actor  = str_actor.replace(tag, replace[1]+"$1");
+			str_target = str_target.replace(tag, replace[0]+"$1");
+			str_others = str_others.replace(tag, replace[1]+"$1");
+		});
+
+		Object.each(target_tags, function(replace, tag) {
+			var tag = new RegExp('%'+tag+'(\\s?)', 'g');
+			if (!str.match(tag)) { return; }
+			str_actor  = str_actor.replace(tag, replace[1]+"$1");
+			str_target = str_target.replace(tag, replace[0]+"$1");
+			str_others = str_others.replace(tag, replace[1]+"$1");
+		});
+
+		strs = [str_actor, str_target, str_others];
+
+		//Auto-capitaliztion
+		strs.each(function(str, i) {
+			var matches = str.match(/[\.\?!]\s+[a-z]/);
+			if (!matches) { return; }
+			matches.each(function(m) {
+				strs[i] = str.replace(m, m.toUpperCase());
+			});
+		});
+	
+		return strs;
+
 	}
 
 });
