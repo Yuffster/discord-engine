@@ -5,18 +5,23 @@ Container = new Class({
 	items: [],
 
 	getItem: function(name) {
-		var item;
-		if (this.equipped && this.getEquippedItem(name)) {
-			return this.getEquippedItem(name);
-		}
-		item = false;
+		var item = false;
 		this.items.each(function(i){
 			if (!item && i.matches(name)) item = i;
 		});
 		return item;
 	},
 
+	countItem: function(name) {
+		var n = 0;
+		this.items.each(function(i){
+			if (i.matches(name)) { n++; }
+		});
+		return n;
+	},
+
 	addItem: function(item) {
+		item.container = this;
 		this.items.push(item);
 	},
 
