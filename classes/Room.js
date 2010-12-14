@@ -1,7 +1,7 @@
 Room = new Class({
 
 	Extends: Base,
-	Implements: Container,
+	Implements: [Container,Visible],
 	long: null,
 	short: null,
 	exits: {},
@@ -28,8 +28,11 @@ Room = new Class({
 
 	removeLiving: function(living) {
 		living.room = false;
-		if (living.player) this.removePlayer(living);
-		else this.living.erase(living);
+		if (living.player) {
+			this.removePlayer(living);
+		} else {
+			this.living.erase(living);
+		}
 	},
 
 	getPlayer: function(name) {
@@ -48,10 +51,10 @@ Room = new Class({
 			return living;
 		}
 		var player = this.getPlayer(name);
-		if (player) return player;
+		if (player) { return player; }
 		var npc = null; 
 		this.living.each(function(l) {
-			if (!npc && l.get('aliases').contains(name)) npc = l;
+			if (!npc && l.get('aliases').contains(name)) { npc = l; }
 		});
 		return npc;
 	},
@@ -65,6 +68,7 @@ Room = new Class({
 	},
 
 	getDescription: function(observer) {
+
 		if (!observer) return;
 		var lines = [];
 		observer.send(this.get('long'));
@@ -97,7 +101,9 @@ Room = new Class({
 	listLiving: function(observer) {
 		var living = [];
 		this.get('living').each(function(live) {
-			if (live!=observer) living.push(live.get('indefinite'));
+			if (live!=observer) {
+				living.push(live.get('indefinite'));
+			}
 		});
 		if (living.length>0) {
 			if (living.length>1) {
@@ -113,7 +119,11 @@ Room = new Class({
 	},
 
 	listItems: function() {
-		var items = this.items;
+		var items = [];
+		this.get('items').each(function(item) {
+			var str = item.get('indefinite') || 'a thing';
+			items.push(str);
+		});
 		if (items.length>1) {
 			items[items.length-1] = 'and '+items.getLast();
 		} return items;

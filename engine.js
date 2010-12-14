@@ -6,6 +6,7 @@ require('classes/Styles');
 require('classes/Prompts');
 require('classes/Messages');
 require('classes/Base');
+require('classes/Visible');
 require('classes/Command');
 require('classes/Container');
 require('classes/Combat');

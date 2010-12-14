@@ -24,7 +24,7 @@ Conversation = new Class({
 		this.startConversation();
 	},
 
-	startConversation: function() {
+	startConversation: function(about) {
 		this.player.fireEvent('conversationStart');
 		this.lastPrompt = this.player.get('prompt');
 		//We pass the second argument so that the prompt isn't bound to the

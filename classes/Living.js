@@ -2,15 +2,13 @@ Living = new Class({
 
 	Extends: Base,
 
-	Implements: [Events, Options, Container, CombatStandard],
+	Implements: [Events, Options, Container, CombatStandard, Visible],
 
 	//The name of the living when seen in a list of things.
 	short: null,
 
 	//The description of the living seen when examined.
 	long: null,
-
-	determinate: 'the ',
 
 	gender: 0, //0: Neutral, 1: male, 2: female
 
@@ -58,10 +56,6 @@ Living = new Class({
 		this.long = long;
 	},
 
-	set_determinate: function(det) {
-		this.determinate = det;
-	},
-
 	add_alias: function(alias) {
 		this.aliases.push(alias);
 	},
@@ -79,21 +73,33 @@ Living = new Class({
 	},
 
 	describeInventory: function(obsv) {
+		obsv = obsv || this;
 		var lines = [];
 		if (this.equipped.length) {
-			lines.push(this.genderize('%You %are wearing ', obsv)+
-			           this.listItems(this.equipped).conjoin()+'.');
+			lines.push(
+				'%You %is wearing '+
+			    	this.listItems(this.equipped).conjoin()+
+				'.'
+			);
+		} else if (this.get('race')=='human') {
+			lines.push('%You %is naked.');
 		}
 		if (this.items.length) {
-			lines.push(this.genderize('%You %are carrying ', obsv)+
-			           this.listItems().conjoin()+'.');
+			lines.push(
+				'%You %is carrying '+
+				this.listItems().conjoin()+'.'
+			);
 		}
+		var n = (this==obsv) ? 0 : 1;
+		var me = this;
+		lines.each(function(l,i) {
+			lines[i] = l.expand(me)[n];
+		});
 		return lines;
 	},
 
 	getDescription: function(observer) {
 		reply = [];
-		if (!this.get('long')) reply.push(this.genderize('%you look%s pretty ordinary.', observer));
 		reply.push(this.get('long'));
 		this.describeInventory(observer).each(function(l) {
 			reply.push(l);
@@ -105,19 +111,14 @@ Living = new Class({
 		return this.name || this.short || "a thing";
 	},
 
-	getDefinite: function() {
-		if (this.player) { return this.name; }
-		var det = this.get('determinate');
-		if (!det) { return this.get('short'); }
-		if (this.room && this.room.getLiving(this.get('short'))) {
-			return "one of "+det+short.pluralize();
-		} return det+this.get('short');
+	getLong: function(long) {
+		return this.long || "%you look%s pretty ordinary.".expand(this)[1];
 	},
 
-	getIndefinite: function() {
-		if (this.player) { return this.name; }
-		var short = this.get('short');
-		return short.getArticle()+' '+short;
+	getCount: function() {
+		if (this.room) {
+			return this.room.countItem(this.get('short'));
+		} return 1;
 	},
 
 	genderize: function(str, you) {
@@ -347,24 +348,25 @@ Living = new Class({
 		if (this.equipped && this.getEquippedItem(name)) {
 			return this.getEquippedItem(name);
 		}
-		var item = false;
+		var item = '';
 		this.items.each(function(i){
-			if (!item && i.matches(name)) item = i;
+			if (!item && i.matches(name)) { item = i; }
 		});
-		return item;
+		if (item) { return item; }
 	},
 
 	getEquippedItem: function(name) {
-		var name = name.split(' ')[0];
 		var item = false;
 		this.equipped.each(function(i){
-			if (!item && i.matches(name)) item = i;
+			if (!item && i.matches(name)) { item = i; }
 		});
 		return item;
 	},
 
 	equipItem: function(item) {
-		if (item.on_equip(this) === false) return false;
+		if (item.on_equip(this) === false) {
+			return false;
+		}
 		this.items.erase(item);
 		this.equipped.push(item);
 	},

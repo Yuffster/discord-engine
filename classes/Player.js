@@ -1,11 +1,15 @@
 Player = new Class({
 
-
 	Extends: Living,
 
+	determinate: '',
+
 	player: true,
+
 	currentPrompt: null,
+
 	promptBind: null,
+
 	location: '', 
 
 	/**
@@ -52,6 +56,18 @@ Player = new Class({
 		if (world.getPlayer(this.get('name'))) return false;
 		world.addPlayer(this);
 		return true;
+	},
+
+	getDefinite: function() {
+		return this.get('name');
+	},
+
+	getIndefinite: function() {
+		return this.get('name');
+	},
+
+	getPlural: function() {
+		return this.get('name');
 	},
 
 	dump: function() {

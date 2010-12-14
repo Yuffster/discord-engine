@@ -59,8 +59,8 @@ String.implement({
 		};
 
 		Object.each(pronouns, function(v,k) {
-			a[k] = v[a.gender];
-			if (target) { t[k] = v[t.gender]; }
+			a[k] = v[a.gender] || v[0];
+			if (target) { t[k] = v[t.gender] || v[0]; }
 		});
 
 		//Replacements: what the actor sees and what the target sees.

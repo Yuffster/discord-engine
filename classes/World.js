@@ -84,7 +84,7 @@ World = new Class({
 		if (!dump) return false;
 		var json = JSON.encode(dump);
 		fs.writeFile(file, json, function (e) {
-  			if (e) log_error(e);
+  			if (e) { log_error(e); }
 			player.send("Game data saved.");
 			player.fireEvent('save');
 		});
@@ -125,7 +125,11 @@ World = new Class({
 			var world  = that.worldPath+this.commandPath+command; 
 			var engine = that.enginePath+this.commandPath+command;
 			this.loadFile([world, engine], function(e,com) {
-				that.commands[command] = new com(that);
+				if (!com || !com.periodical) {
+					log_error(
+						"Command '"+command+"' couldn't be loaded ["+com+"]."
+					);
+				} else { that.commands[command] = new com(that); }
 			}, {'sync':true, 'rootPath':true});
 		} return this.commands[command];
 	},
@@ -161,9 +165,7 @@ World = new Class({
 			if (!obj) { return false; }
 			//obj.implement({'path':path});
 			this.items[path] = obj;
-		} 
-		sys.puts(new this.items[path]());
-		return new this.items[path]();
+		} return new this.items[path]();
 	},
 
 	loadNPC: function(path) {
@@ -238,19 +240,22 @@ World = new Class({
 		if (opts.rootPath) file = path+'.js';
 
 		var my = this;
+		var err;
 		var handleData = function(e,raw) {
 			data = false;
-			if (e) log_error(e);
 			if (!raw) {
-				e = "File not found: "+file;
+				err = e;
 				my.failedFiles.push(path);
 				/* Continue down our list of fallbacks. */
-				if (fallbacks.length>0) my.loadFile(fallbacks, callback, opts);
-				else log_error(e);
+				if (fallbacks.length>0) {
+					my.loadFile(fallbacks, callback, opts);
+				} else {
+					log_error("File not found: "+path);
+				}
 			} else {
 				try { eval('data='+raw); }
-				catch (e) { e = e; }
-			} callback(e, data);
+				catch (e) { log_error(e); }
+			}callback(err, data);
 		};
 		if (opts.sync) {
 			try {
@@ -258,8 +263,9 @@ World = new Class({
 			} catch (e) {
 				this.failedFiles.push(path);
 				/* Continue down our list of fallbacks. */
-				if (fallbacks.length>0) return this.loadFile(fallbacks, callback, opts);
-				else return false;
+				if (fallbacks.length>0) {
+					return this.loadFile(fallbacks, callback, opts);
+				} else return e;
 			} return handleData(false,data);
 		} else {
 			fs.readFile(file, handleData);

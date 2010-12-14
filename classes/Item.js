@@ -1,12 +1,10 @@
 Item = new Class({
 
-	Implements: Base,
+	Implements: [Base, Visible],
 
 	short: null,
 
 	long: null,
-
-	determinate: null,
 
 	aliases: [],
 
@@ -15,6 +13,8 @@ Item = new Class({
 	noun: null,
 
 	path: null,
+
+	container: null,
 	
 	set_short: function(desc) {
 		this.short = desc;
@@ -45,10 +45,6 @@ Item = new Class({
 		this.adjectives = adj;
 	},
 
-	set_determinate: function(str) {
-		this.determinate = str;
-	},
-
 	on_equip: function() {
 	},
 
@@ -56,27 +52,6 @@ Item = new Class({
 	},
 
 	on_drop: function() {
-	},
-
-	getDefinite: function() {
-		var det = this.get('determinate') || 'the ';
-		if (this.owner.getItem(this.get('short'))) {
-			return "one of "+det+" "+short.pluralize();
-		} return det+this.get('short');
-	},
-
-	getIndefinite: function() {
-		var short = this.get('short');
-		return short.getArticle()+' '+short;
-	},
-
-	getDescription: function(observer) {
-		return this.long;
-	},
-
-	getShort: function() {
-		if (this.short) return this.get('determinate')+' '+this.short;
-		return 'a thing';
 	},
 
 	getNoun: function() {
@@ -98,16 +73,27 @@ Item = new Class({
 		return (this.get('adjectives').contains(adj));
 	},
 
+	/**
+	 * Returns how many of the same object are present within the same
+	 * container.
+	 */
+	getCount: function() {
+		if (this.container) {
+			return this.container.countItem(this.short);
+		} return 1;
+	},
+
 	//Determines how well a given string matches this item's short,
 	//adjectives and aliases.
 	matches: function(words) {
+		if (!words.split && words.short) { words = words.short; }
 		words = words.split(' ');
 		noun  = words.pop();
-		if (!this.hasNoun(noun)) return;
+		if (!this.hasNoun(noun)) { return; }
 		var match = true;
 		words.each(function(w) {
-			if (match===false) return;
-			if (!this.hasAdjective(w)) match = false;
+			if (match===false) { return; }
+			if (!this.hasAdjective(w)) { match = false; }
 		}, this);
 		return match;
 	},

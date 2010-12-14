@@ -41,13 +41,15 @@ Container = new Class({
 			}
 		});
 		var strs = [];
+		var my = this;
 		Object.each(clump, function(n,short) {
-			var i = shorts[short];
+			var i   = shorts[short];
+			var obj = my.getItem(i);
+			if (!obj) { return; }
 			if (n==1) {
-				var article = i.get('determinate') || short.getArticle();
-				strs.push(article+' '+short);
+				strs.push(obj.get('indefinite'));
 			} else {
-				var plural = i.get('plural') || short.getPlural();
+				var plural = obj.get('plural');
 				strs.push(n.toWord()+' '+plural);
 			}
 		}); return strs;
