@@ -121,46 +121,8 @@ Living = new Class({
 		} return 1;
 	},
 
-	genderize: function(str, you) {
-
-		var male = (this.gender=='male');
-		var name = this.get('definite');
-
-		var pronouns = {
-			'you'   : (male) ? 'he'  : 'she',
-			'You'   : name, //(male) ? 'He'  : 'She',
-			'yours' : (male) ? 'his' : 'her',
-			'Yours' : (male) ? 'His' : 'Her',
-			"You're" : name+"'s",
-			"you're" : (male) ? "he's" : "she's",
-			'your'  : (male) ? 'his' : 'her',
-			'yourself' : (male) ? 'himself' : 'herself',
-			'Your'  : name+"'s", //(male) ? 'His' : 'her',
-			's'     : 's',
-			'es'    : 'es',
-			'y'     : 'ies',
-			'are'   : 'is'
-		};
-
-		if (you) {
-			var set = {};
-			Object.each(pronouns, function(v,k) {
-				set[k] = k;	
-			});
-			set.s = '';
-			set.es = '';
-			pronouns = set;
-		}
-
-		var match = str.match(/%([A-Z'a-z]+)/g);
-		if (!match) return str;
-
-		match.each(function(k) {
-			var k = k.replace(/^%/, '');
-			if (pronouns[k]!==undefined) str = str.replace('%'+k, pronouns[k]);
-		});
-
-		return str;
+	getItems: function() {
+		return this.items.append(this.equipment);
 	},
 
 	setRoom: function(room) {
@@ -235,31 +197,33 @@ Living = new Class({
 	/**
 	 * Emits a message to everyone in the room.
 	 */
-	emit: function(message, style) {
+	emit: function(message, target, style) {
+
+		if (target && target.length) {
+			style = target;
+			target = false;
+		}
+
+		var messages = message.expand(this, target);
+
 		var my = this;
 		var me = this.get('short');
+
 		if (!this.get('room')) {
 			log_error("Living "+this.get('short')+" should have a room but does not!");
 			return;
 		}
-		var first, third;
-		/**
-		 * If an array is passed as the first argument, use those as first-
-		 * and third-person messages.
-		 */
-		if (message.each) {
-			second = message[0];
-			third = my.get('short')+' '+message[1];
-		} else {
-			second = my.genderize(message, this);
-			third  = my.genderize(message);
-		}
+
 		Object.each(this.get('room').get('players'), function(player, name) {
-			//If this player isn't the emitter, use third person.
-			if (player.name != me) player.send(third, style);
-			//Otherwise, use second.
-			else player.send(second, style);
+			if (target && player.name == target.name) {
+				player.send(messages[1], style);
+			} else if (player.name != me) {
+				player.send(messages[2], style);
+			} else if (player.name == me) {
+				player.send(messages[0], style);
+			}
 		});
+
 	},
 
 	/**
@@ -344,15 +308,8 @@ Living = new Class({
 
 	},
 
-	getItem: function(name) {
-		if (this.equipped && this.getEquippedItem(name)) {
-			return this.getEquippedItem(name);
-		}
-		var item = '';
-		this.items.each(function(i){
-			if (!item && i.matches(name)) { item = i; }
-		});
-		if (item) { return item; }
+	getItems: function() {
+		return this.items.combine(this.get('equipped'));
 	},
 
 	getEquippedItem: function(name) {

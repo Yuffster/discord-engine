@@ -6,7 +6,7 @@ Container = new Class({
 
 	getItem: function(name) {
 		var item = false;
-		this.items.each(function(i){
+		this.get('items').each(function(i){
 			if (!item && i.matches(name)) item = i;
 		});
 		return item;
@@ -27,6 +27,10 @@ Container = new Class({
 
 	removeItem: function(item) {
 		this.items.erase(item);
+	},
+
+	getItems: function() {
+		return this.items;
 	},
 
 	listItems: function(items) {
