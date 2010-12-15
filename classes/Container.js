@@ -26,6 +26,7 @@ Container = new Class({
 	},
 
 	removeItem: function(item) {
+		item.container = null;
 		this.items.erase(item);
 	},
 

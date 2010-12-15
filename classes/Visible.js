@@ -12,6 +12,12 @@ Visible = new Class({
 
 	plural: false,
 
+	aliases: [],
+
+	adjectives: [],
+
+	noun: false,
+
 	set_determinate: function(det) {
 		this.determinate = det;
 	},
@@ -24,8 +30,59 @@ Visible = new Class({
 		this.plural = p;
 	},
 
+	set_aliases: function(aliases) {
+		this.aliases = aliases;
+	},
+
+	add_alias: function(alias) {
+		this.aliases.push(alias);
+	},
+
+	add_adjective: function(adj) {
+		this.adjectives.push(adj);
+	},
+
+	set_adjectives: function(adj) {
+		this.adjectives = adj;
+	},
+
+	getNoun: function() {
+		if (this.noun) return this.noun;
+		else return this.short.split(' ').pop();
+	},
+
+	hasNoun: function(alias) {
+		return (alias==this.get('noun')) ? true : this.aliases.contains(alias);
+	},
+
+	getAdjectives: function() {
+		var shortAdjs = this.get('short').split(' ');
+		shortAdjs.pop();
+		return shortAdjs.concat(this.adjectives);
+	},
+
+	hasAdjective: function(adj) {
+		return (this.get('adjectives').contains(adj));
+	},
+
+	//Determines if a given string matches this item's short,
+	//adjectives and aliases.
+	matches: function(words) {
+		//If this is an item.
+		if (!words.split && words.short) { words = words.short; }
+		words = words.split(' ');
+		noun  = words.pop();
+		if (!this.hasNoun(noun)) { return; }
+		var match = true;
+		words.each(function(w) {
+			if (match===false) { return; }
+			if (!this.hasAdjective(w)) { match = false; }
+		}, this);
+		return match;
+	},
+
 	getDeterminate: function() {
-		return this.determinate || 'the ';
+		return this.determinate;
 	},
 
 	getPlural: function() {

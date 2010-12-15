@@ -2,7 +2,7 @@ Living = new Class({
 
 	Extends: Base,
 
-	Implements: [Events, Options, Container, CombatStandard, Visible],
+	Implements: [Events, Options, Container, CombatStandard, Visible, AdvancedParser],
 
 	//The name of the living when seen in a list of things.
 	short: null,
@@ -258,6 +258,12 @@ Living = new Class({
 			}
 		}
 
+		this.getItems().each(function(item) {
+			if (!out && item.parseLine) {
+				out = item.parseLine(string, this);
+			} 
+		}, this);
+
 		//The commands either have to return before this point or have
 		//output that is equal to true or a string.
 		//
@@ -265,8 +271,12 @@ Living = new Class({
 
 		if (out===true) return;
 		if (!out) out = 'What?';
+
+		out = out.charAt(0).toUpperCase() + out.slice(1);
 		
 		this.send(out);
+
+		return out;
 
 	},
 

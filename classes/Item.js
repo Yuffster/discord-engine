@@ -1,6 +1,6 @@
 Item = new Class({
 
-	Implements: [Base, Visible],
+	Implements: [Base, Visible, AdvancedParser],
 
 	short: null,
 

@@ -1,7 +1,7 @@
 Room = new Class({
 
 	Extends: Base,
-	Implements: [Container,Visible],
+	Implements: [Container,Visible,AdvancedParser],
 	long: null,
 	short: null,
 	exits: {},
@@ -39,22 +39,25 @@ Room = new Class({
 		return this.players[name.toLowerCase()] || false;
 	},
 
+	getPlayers: function() {
+		var living = [];
+		Object.each(this.players, function(pl) {
+			living.push(pl);
+		});
+		return living;
+	},
+
 	getLiving: function(name) {
 		if (!name) {
-			living = [];
-			Object.each(this.players, function(pl) {
-				living.push(pl);
-			});
-			this.living.each(function(l) {
-				living.push(l);
-			});
+			living = this.living;
+			living.combine(this.get('players'));
 			return living;
 		}
 		var player = this.getPlayer(name);
 		if (player) { return player; }
 		var npc = null; 
 		this.living.each(function(l) {
-			if (!npc && l.get('aliases').contains(name)) { npc = l; }
+			if (!npc && l.match(name)) { npc = l; }
 		});
 		return npc;
 	},
