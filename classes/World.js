@@ -1,3 +1,4 @@
+var fs = require('fs');
 /**
  * The World class is the main game driver.  It determines which files to load
  * and from where, stores all rooms and objects, handles loading of rooms and
@@ -24,7 +25,7 @@ World = new Class({
 	worldPath   : null,
 	defaultRoom : '',
 
-	enginePath  : './',
+	enginePath  : ENGINE_PATH,
 	commandPath : 'commands/',
 	roomPath    : 'rooms/',
 	itemPath    : 'items/',
@@ -48,7 +49,7 @@ World = new Class({
 		});
 		this.set('name', config.name);
 		this.config      = config;
-		this.worldPath   = config.world_path+'/';
+		this.worldPath   = ENGINE_PATH+config.world_path+'/';
 		this.defaultRoom = config.start_room;
 
 		this.loadFile('initialize');
@@ -209,7 +210,12 @@ World = new Class({
 			var mod = require(file);
 			if (mod.main) {
 				return mod.main;
-			} return mod;
+			} else {
+				var keys = 0;
+				Object.each(mod, function() { keys++; });
+				if (!keys) { return false; }
+				else { return mod; }
+			}
 		} catch (e) {
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);

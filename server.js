@@ -17,7 +17,8 @@
  * @copyright 2010 Michelle Steigerwalt
  */
 
-require.paths.push('./');
+ENGINE_PATH = __dirname+'/';
+require.paths.push(ENGINE_PATH);
 require.paths.push('../');
 
 sys = require('sys');

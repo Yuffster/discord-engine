@@ -122,7 +122,7 @@ Living = new Class({
 	},
 
 	getItems: function() {
-		return this.items.append(this.equipment);
+		return this.items.combine(this.equipment);
 	},
 
 	setRoom: function(room) {
