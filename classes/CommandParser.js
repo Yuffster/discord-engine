@@ -8,6 +8,10 @@ CommandParser = new Class({
 
 	failure_message: false,
 
+	add_failure_message: function(message) {
+		this.failure_message = message;
+	},
+
 	/**
      * This method should be used on item/room creation.
      */
@@ -25,8 +29,12 @@ CommandParser = new Class({
 	},
 
 	parseLine: function(line, caller) {
+		this.failure_message = false;
 		var realParser = new AdvancedParser();
-		return realParser.parseLine(line, caller, this);
+		var output = realParser.parseLine(line, caller, this);
+		if (realParser.failure_message) {
+			this.failure_message = realParser.failure_message;
+		} return output;
 	}
 
 });

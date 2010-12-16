@@ -37,6 +37,8 @@ AdvancedParser = new Class({
 	 * arguments.  Mangled form of LPC/Discworld-based command strings.
 	 */
 	parseLine: function(line, caller, holder) {
+	
+		this.failure_message = false;
 
 		holder = holder || this;
 
@@ -54,8 +56,9 @@ AdvancedParser = new Class({
 		if (!patterns || !handler) { return false; }
 
 		var result = false;
+		var success = false;
 		patterns.each(function(syntax) {
-			if (result) { return; }
+			if (success) { return; }
 			var args = this.extractArguments(syntax, line);
 			if (!args) { return false; }
 			var valid = true;
@@ -66,14 +69,22 @@ AdvancedParser = new Class({
 					valid = false;
 					var any = this.findAnyObject(obj.str, caller);
 					if (!any) {
-						result = "Cannot find '"+obj.str+"'.";
+						this.add_failure_message("Cannot find '"+obj.str+"'.");
 					} else {
-						result = "You can't do that with "+any.get('definite')+".";
+						this.add_failure_message(
+							"You can't do that with "+any.get('definite')+"."
+						);
 					}
 				}
 			}, this);
 			if (valid && args && args.length) {
 				result = handler.bind(this.holder).pass(args)();	
+				if (this.holder.failure_message) {
+					this.failure_mesage = this.holder.failure_message;
+					result = this.failure_message;
+				} else if (result) { success = true; }
+			} else if (!valid && this.failure_message) {
+				result = this.failure_message;
 			}
 		}, this);
 

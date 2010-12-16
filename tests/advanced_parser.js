@@ -1,7 +1,6 @@
 var brush = new Class({
 
 	Extends: Item,
-	Implements: CommandParser,
 
 	create: function() {
 		this.set_short('scrubbing brush');
@@ -31,7 +30,6 @@ var brush = new Class({
 var locket = new Class({
 
 	Extends: Item,
-	Implements: CommandParser,
 
 	create: function() {
 		this.set_short('brass locket');
@@ -41,6 +39,21 @@ var locket = new Class({
 
 	whoah: function(me) {
 		return "There are narwhals inside!";	
+	}
+
+});
+
+var toothbrush = new Class({
+
+	Extends: Item,
+
+	create: function() {
+		this.set_short("toothbrush");
+		this.add_command("polish", "<indirect:object> with <direct:object>");
+	},
+
+	do_polish: function(obj, me) {
+		return "You polish "+obj.get('definite')+" with "+me.get('definite')+".";
 	}
 
 });
@@ -64,6 +77,7 @@ living.world = new World({
 });
 living.addItem(new brush());
 living.addItem(new locket());
+living.addItem(new toothbrush());
 
 var successMessage = "You polish the brass locket with the scrubbing brush.";
 describe('advanced parsing', {
@@ -102,6 +116,11 @@ describe('advanced parsing', {
 	'single argument <direct:object>, no delimiters, custom handler': function() {
 		var result = living.parseCommand("open locket");
 		assert.equal(result, "There are narwhals inside!");
+	},
+
+	'pass through failures': function() {
+		var result = living.parseCommand("polish brush with toothbrush");
+		assert.equal(result, "You polish the scrubbing brush with the toothbrush.");
 	}
 
 });

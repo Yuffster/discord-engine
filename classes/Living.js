@@ -253,9 +253,14 @@ Living = new Class({
 			}
 		}
 
+		var success = false;
 		this.getItems().each(function(item) {
-			if (!out && item.parseLine) {
-				out = item.parseLine(string, this);
+			if (!success && item.parseLine) {
+				result = item.parseLine(string, this);
+				if (result) { out = result; }
+				if (item.failure_message) {
+					out = item.failure_message;
+				} else if (result) { success = true; }
 			} 
 		}, this);
 
