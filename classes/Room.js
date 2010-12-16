@@ -57,7 +57,7 @@ Room = new Class({
 		if (player) { return player; }
 		var npc = null; 
 		this.living.each(function(l) {
-			if (!npc && l.match(name)) { npc = l; }
+			if (!npc && l.matches(name)) { npc = l; }
 		});
 		return npc;
 	},

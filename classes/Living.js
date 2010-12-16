@@ -86,8 +86,7 @@ Living = new Class({
 		}
 		if (this.items.length) {
 			lines.push(
-				'%You %is carrying '+
-				this.listItems().conjoin()+'.'
+				'%You %is carrying '+this.listItems().conjoin()+'.'
 			);
 		}
 		var n = (this==obsv) ? 0 : 1;
@@ -119,10 +118,6 @@ Living = new Class({
 		if (this.room) {
 			return this.room.countItem(this.get('short'));
 		} return 1;
-	},
-
-	getItems: function() {
-		return this.items.combine(this.equipment);
 	},
 
 	setRoom: function(room) {
@@ -324,24 +319,30 @@ Living = new Class({
 
 	},
 
-	getItems: function() {
-		return this.items.combine(this.get('equipped'));
+	getItem: function(name) {
+		var items = this.get('items');
+		if (this.equipped) { items = ([items,this.equipped]).flatten(); }
+		var item = false;
+		items.each(function(i){
+			if (!item && i.matches(name)) item = i;
+		});
+		return item;
 	},
 
 	getEquippedItem: function(name) {
 		var item = false;
 		this.equipped.each(function(i){
 			if (!item && i.matches(name)) { item = i; }
-		});
-		return item;
+		}); return item;
 	},
 
 	equipItem: function(item) {
 		if (item.on_equip(this) === false) {
 			return false;
 		}
-		this.items.erase(item);
+		if (!this.items.contains(item)) { return false; }
 		this.equipped.push(item);
+		this.items.erase(item);
 	},
 
 	unequipItem: function(item) {

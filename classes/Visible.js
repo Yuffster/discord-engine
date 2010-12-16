@@ -47,8 +47,9 @@ Visible = new Class({
 	},
 
 	getNoun: function() {
-		if (this.noun) return this.noun;
-		else return this.short.split(' ').pop();
+		if (!this.short) { return false; }
+		if (this.noun) { return this.noun; }
+		return this.short.split(' ').pop();
 	},
 
 	hasNoun: function(alias) {
