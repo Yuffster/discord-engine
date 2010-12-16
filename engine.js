@@ -1,4 +1,6 @@
 require('lib/mootools').apply(GLOBAL);
+sys = require('sys');
+fs  = require('fs');
 require('classes/String');
 require('classes/English');
 require('classes/ANSI');
@@ -6,6 +8,8 @@ require('classes/Styles');
 require('classes/Prompts');
 require('classes/Messages');
 require('classes/Base');
+require('classes/CommandParser');
+require('classes/AdvancedParser');
 require('classes/Visible');
 require('classes/Command');
 require('classes/Container');

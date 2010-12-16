@@ -20,9 +20,6 @@
 ENGINE_PATH = __dirname+'/';
 require.paths.push(ENGINE_PATH);
 require.paths.push('../');
-
-sys = require('sys');
-fs  = require('fs');
 require('engine');
 
 /**

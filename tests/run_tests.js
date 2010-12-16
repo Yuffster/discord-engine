@@ -1,8 +1,8 @@
+ENGINE_PATH = __dirname+"/../";
+
 require.paths.push('../');
 require.paths.push('./');
-
 require('engine');
-sys = require('sys');
 
 JSON.stringify = function(mess) { JSON.encode(mess); }
 
@@ -20,7 +20,7 @@ describe = function(series, obj) {
 		} catch (e) {
 			failed++;
 			sys.puts("\t"+desc.color('red'));
-			sys.puts("\t\t====> "+e);
+			sys.puts("\t\t====> "+e.stack);
 			return;
 		}
 
@@ -41,5 +41,6 @@ describe = function(series, obj) {
 assert = require('assert');
 
 require('messaging');
+require('advanced_parser');
 
 process.exit();

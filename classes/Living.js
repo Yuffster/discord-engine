@@ -2,7 +2,7 @@ Living = new Class({
 
 	Extends: Base,
 
-	Implements: [Events, Options, Container, CombatStandard, Visible, AdvancedParser],
+	Implements: [Events, Options, Container, CombatStandard, Visible, CommandParser],
 
 	//The name of the living when seen in a list of things.
 	short: null,

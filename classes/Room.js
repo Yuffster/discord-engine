@@ -1,7 +1,7 @@
 Room = new Class({
 
 	Extends: Base,
-	Implements: [Container,Visible,AdvancedParser],
+	Implements: [Container,Visible,CommandParser],
 	long: null,
 	short: null,
 	exits: {},

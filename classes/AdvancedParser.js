@@ -1,38 +1,34 @@
 /**
  * Mangled port of a command parser based on LPC/Discworld syntax.
  *
+ * Provides objects with an add_command method which takes a command, such as
+ * "pull" and a syntax, just as "<direct:object>".
+ *
  * The Discworld parser is a marvel, so this will probably never be a complete
  * imitation.
+ * 
+ * @author Michelle Steigerwalt <msteigerwalt.com>
+ * @copyright 2010 Michelle Steigerwalt
  */
 AdvancedParser = new Class({
 
+	Implements: CommandParser,
+
+	commands: [],
+
 	caller: null, //The living object calling the command.
 
-	commands: {}, //Syntax: {command:[patterns]};
+	failure_message: null,
 
-	/**
-     * This method should be used on item/room creation.
-     */
-	add_command: function(command, patterns, method) {
-		method = method || this['do_'+command];
-		if (!method) { return false; }
-		//Force pattern to be an array.
-		if (!patterns.each) { patterns = [patterns]; }
-		//Force method to be a function and not a string.
-		if (method.length) { method = this[method]; }
-		this.commands[command] = {
-			'syntax': patterns,
-			'method': method
-		};
-	},
-
-	getPatterns: function(command) {
-		var com = this.commands[command];
+	getPatterns: function(command, commands) {
+		commands = commands || this.commands;
+		var com = commands[command];
 		return (com) ? com.syntax : false;
 	},
 
-	getHandler: function(command) {
-		var com = this.commands[command];
+	getHandler: function(command, commands) {
+		commands = commands || this.commands;
+		var com = commands[command];
 		return (com) ? com.method: false;
 	},
 
@@ -40,15 +36,17 @@ AdvancedParser = new Class({
 	 * Takes an arguments string for a command and parses out the <> syntax
 	 * arguments.  Mangled form of LPC/Discworld-based command strings.
 	 */
-	parseLine: function(line, caller) {
+	parseLine: function(line, caller, holder) {
+
+		holder = holder || this;
 
 		var words     = line.split(' ');
 		var command   = words.shift();
 
 		line = words.join(' ');
 
-		var patterns = this.getPatterns(command);
-		var handler  = this.getHandler(command);
+		var patterns = this.getPatterns(command, holder.commands);
+		var handler  = this.getHandler(command, holder.commands);
 
 		if (!patterns || !handler) { return false; }
 
@@ -60,10 +58,10 @@ AdvancedParser = new Class({
 			var valid = true;
 			args.each(function(obj, i) {
 				if (!valid) { return; }
-				args[i] = this.findObject(obj.tag, obj.str, caller);
+				args[i] = this.findObject.bind(holder).pass([obj.tag, obj.str, caller])();
 				if (!args[i]) {
 					valid = false;
-					var any = this.findAnyObject(obj.str, caller);
+					var any = this.findAnyObject.bind(holder).pass([obj.str, caller])();
 					if (!any) {
 						result = "Cannot find '"+obj.str+"'.";
 					} else {
@@ -155,6 +153,13 @@ AdvancedParser = new Class({
 		// to understand exactly what each tag will return.
 		if (tag=='direct') {
 			return (this.matches(words)) ? this : false;
+		} else if (tag == "object") {
+			if (this.container) {
+				list.combine(this.container.getItems());
+			}
+			if (this.caller.room) {
+				list.combine(this.container.getItems());
+			}
 		} else if (tag == "direct:living") {
 			return (this.caller.matches(words)) ? this.caller : false;
 		} else if (tag == "direct:object") {
@@ -237,7 +242,7 @@ AdvancedParser = new Class({
 
 	},
 
-	findAnyObject: function(words) {
+	findAnyObject: function(words, parser) {
 		var list = [];
 		if (this.container) {
 			list.combine(this.container.getItems());
@@ -247,18 +252,7 @@ AdvancedParser = new Class({
 			list.combine(this.caller.room.getItems());
 		}
 		return this.checkList(list, words);
-	},
-
-	checkList: function(list, words) {
-		if (!list || !words) { return false; }
-		if (!list.each) { list = [list]; } //Splat
-		var match = false;
-		list.each(function(item) {
-			if (!match && item.matches(words)) {
-				match = item;
-			}
-		});
-		return match;
 	}
+
 
 });
