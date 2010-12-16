@@ -272,7 +272,13 @@ Living = new Class({
 		if (out===true) return;
 		if (!out) out = 'What?';
 
-		out = out.charAt(0).toUpperCase() + out.slice(1);
+		if (out.charAt) {
+			out.charAt(0).toUpperCase() + out.slice(1);
+		} else if (out.each) { 
+			out.each(function(ln, i) {
+				ln[i] = ln.charAt(0).toUpperCase + ln.slice(1);
+			});
+		}
 		
 		this.send(out);
 

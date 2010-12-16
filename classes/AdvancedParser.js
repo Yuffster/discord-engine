@@ -40,6 +40,9 @@ AdvancedParser = new Class({
 
 		holder = holder || this;
 
+		this.caller = caller;
+		this.holder = holder;
+
 		var words     = line.split(' ');
 		var command   = words.shift();
 
@@ -58,10 +61,10 @@ AdvancedParser = new Class({
 			var valid = true;
 			args.each(function(obj, i) {
 				if (!valid) { return; }
-				args[i] = this.findObject.bind(holder).pass([obj.tag, obj.str, caller])();
+				args[i] = this.findObject(obj.tag, obj.str);
 				if (!args[i]) {
 					valid = false;
-					var any = this.findAnyObject.bind(holder).pass([obj.str, caller])();
+					var any = this.findAnyObject(obj.str, caller);
 					if (!any) {
 						result = "Cannot find '"+obj.str+"'.";
 					} else {
@@ -70,7 +73,7 @@ AdvancedParser = new Class({
 				}
 			}, this);
 			if (valid && args && args.length) {
-				result = handler.bind(this).pass(args)();	
+				result = handler.bind(this.holder).pass(args)();	
 			}
 		}, this);
 
@@ -145,75 +148,76 @@ AdvancedParser = new Class({
 
 	},
 
-	findObject: function(tag, words, caller) {
+	findObject: function(tag, words) {
+
+		var caller = this.caller;
+		var obj    = this.holder;
 
 		var list = [];
 
 		// A lot of reproduction of code here!  This will make it easier for people
 		// to understand exactly what each tag will return.
 		if (tag=='direct') {
-			return (this.matches(words)) ? this : false;
+			list.push(obj);
 		} else if (tag == "object") {
-			if (this.container) {
-				list.combine(this.container.getItems());
+			if (obj.container) {
+				list.combine(obj.container.getItems());
 			}
-			if (this.caller.room) {
-				list.combine(this.container.getItems());
+			if (caller.room) {
+				list.combine(caller.room.getItems());
 			}
 		} else if (tag == "direct:living") {
-			return (this.caller.matches(words)) ? this.caller : false;
+			list.push(caller);
 		} else if (tag == "direct:object") {
-			return (this.matches(words)) ? this : false;
+			list.push(obj);
 		} else if (tag == "direct:player") {
-			if (!this.caller.player) { return false; }
-			return (this.caller.matches(words)) ? this.caller : false;
+			if (caller.player) { list.push(caller); }
 		} else if (tag=="indirect") {
-			if (this.container) {
-				list.combine(this.container.getItems());
+			if (obj.container) {
+				list.combine(obj.container.getItems());
 			}
-			if (this.caller.room) {
-				list.combine(this.caller.room.getLiving());
-				list.combine(this.caller.room.getItems());
+			if (caller.room) {
+				list.combine(caller.room.getLiving());
+				list.combine(caller.room.getItems());
 			}
-			list.erase(this.caller);
-			list.erase(this);
+			list.erase(caller);
+			list.erase(obj);
 		} else if (tag == "indirect:object") {
-			if (this.container) {
-				list.combine(this.container.getItems());
+			if (obj.container) {
+				list.combine(obj.container.getItems());
 			}
-			if (this.caller.room) {
-				list.combine(this.caller.room.getItems());
-			}
-			list.erase(this);
+			if (caller.room) {
+				list.combine(caller.room.getItems());
+			} list.erase(obj);
 		} else if (tag == "indirect:object:me") {
-			if (this.container) {
-				list.combine(this.container.getItems());
-			} list.erase(this);
+			if (obj.container) {
+				list.combine(obj.container.getItems());
+			} list.erase(obj);
 		} else if (tag == "indirect:object:here") {
-			if (this.caller.room) {
-				list.combine(this.caller.room.getItems());
-			} list.erase(this);
+			if (caller.room) {
+				list.combine(caller.room.getItems());
+			} list.erase(obj);
 		} else if (tag == "indirect:object:me:here") {
-			if (this.container) {
-				list.combine(this.container.getItems());
+			if (obj.container) {
+				list.combine(obj.container.getItems());
 			} 
-			if (this.caller.room) {
-				list.combine(this.caller.room.getItems());
-			} list.erase(this);
+			if (caller.room) {
+				list.combine(caller.room.getItems());
+			} list.erase(obj);
 		} else if (tag == "indirect:object:here:me") {
-			if (this.caller.room) {
-				list.combine(this.caller.room.getItems());
+			if (caller.room) {
+				list.combine(caller.room.getItems());
 			}
-			if (this.container) {
-				list.combine(this.container.getItems());
-			} list.erase(this);
+			if (obj.container) {
+				list.combine(obj.container.getItems());
+			} list.erase(obj);
 		} else if (tag == "indirect:living") {
-			if (this.caller.room) {
-				list.combine(this.caller.room.getLiving().erase(this));
+			if (caller.room) {
+				list.combine(caller.room.getLiving().erase(obj));
 			}
 		} else if (tag == "indirect:player") {
-			if (this.caller.room) {
-				list.combine(this.caller.room.getPlayers().erase(this));
+			if (caller.room) {
+				list.combine(caller.room.getPlayers().erase(obj));
 			}
 		} else if (tag == "string") {
 			return words;
@@ -236,6 +240,8 @@ AdvancedParser = new Class({
 			return false;
 		}
 
+		list = list.filter(function(item) { return (item.get) ? 1 : 0; });
+
 		if (!list || !list.length) { return false; }
 
 		return this.checkList(list, words) || false;
@@ -244,15 +250,30 @@ AdvancedParser = new Class({
 
 	findAnyObject: function(words, parser) {
 		var list = [];
-		if (this.container) {
-			list.combine(this.container.getItems());
+		if (this.holder.container) {
+			list.combine(this.holder.container.getItems());
 		}
 		if (this.caller.room) {
 			list.combine(this.caller.room.getLiving());
 			list.combine(this.caller.room.getItems());
 		}
 		return this.checkList(list, words);
-	}
+	},
 
+	checkList: function(list, words) {
+		if (!list.length || !list || !words) { return false; }
+		if (!list.each) { list = [list]; } //Splat
+
+		list = list.filter(function(item) { return (item.get) ? true : false; });
+
+		var match = false;
+		list.each(function(item) {
+			if (!match && item.matches(words)) {
+				match = item;
+			}
+		});
+
+		return match;
+	}
 
 });

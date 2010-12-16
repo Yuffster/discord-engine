@@ -32,11 +32,6 @@ Item = new Class({
 		this.aliases.push(alias);
 	},
 
-	/* TODO: Implement this. */
-	add_command: function(comm, fun, delim) {
-
-	},
-
 	add_adjective: function(adj) {
 		this.adjectives.push(adj);
 	},

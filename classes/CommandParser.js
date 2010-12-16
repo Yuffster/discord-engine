@@ -27,18 +27,6 @@ CommandParser = new Class({
 	parseLine: function(line, caller) {
 		var realParser = new AdvancedParser();
 		return realParser.parseLine(line, caller, this);
-	},
-
-	checkList: function(list, words) {
-		if (!list || !words) { return false; }
-		if (!list.each) { list = [list]; } //Splat
-		var match = false;
-		list.each(function(item) {
-			if (!match && item.matches(words)) {
-				match = item;
-			}
-		});
-		return match;
 	}
 
 });
