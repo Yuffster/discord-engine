@@ -10,6 +10,7 @@ exports.main = new Class({
 		    "of endless possibility as you stand here."
 		);
 		this.add_living('rat');
+		this.load_item('strawberry');
 	}
 
 });

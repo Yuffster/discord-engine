@@ -16,7 +16,11 @@ AdvancedParser = new Class({
 
 	commands: [],
 
-	caller: null, //The living object calling the command.
+	living: null, //The living object calling the command.
+
+	holder: null,
+
+	foo: "FOO",
 
 	failure_message: null,
 
@@ -36,13 +40,13 @@ AdvancedParser = new Class({
 	 * Takes an arguments string for a command and parses out the <> syntax
 	 * arguments.  Mangled form of LPC/Discworld-based command strings.
 	 */
-	parseLine: function(line, caller, holder) {
+	parseLine: function(line, living, holder) {
 	
 		this.failure_message = false;
 
 		holder = holder || this;
 
-		this.caller = caller;
+		this.living = living;
 		this.holder = holder;
 
 		var words     = line.split(' ');
@@ -64,10 +68,10 @@ AdvancedParser = new Class({
 			var valid = true;
 			args.each(function(obj, i) {
 				if (!valid) { return; }
-				args[i] = this.findObject(obj.tag, obj.str);
+				args[i] = this.findObject(obj.tag, obj.str, this.living);
 				if (!args[i]) {
 					valid = false;
-					var any = this.findAnyObject(obj.str, caller);
+					var any = this.findAnyObject(obj.str);
 					if (!any) {
 						this.add_failure_message("Cannot find '"+obj.str+"'.");
 					} else {
@@ -94,7 +98,7 @@ AdvancedParser = new Class({
 
 	extractArguments: function(syntax, line) {
 
-		//The ' is a delimiter within a tag for user-friendly syntax
+		//The ' is a delimiter within a tag for living-friendly syntax
 		// display.
 		var patt = /(<[\w:']*>)/g;
 		var items = syntax.split(patt).filter(function(i) { 
@@ -149,7 +153,7 @@ AdvancedParser = new Class({
 				valid = false; 
 				return false;
 			}
-			//Optional '* match is for implementing user-friendly syntax
+			//Optional '* match is for implementing living-friendly syntax
 			//output.
 			var tag = tags[i].replace(/^<|('[\w]+)?>$/g, '');
 			args[i] =  {str: sec, tag: tag};
@@ -159,9 +163,8 @@ AdvancedParser = new Class({
 
 	},
 
-	findObject: function(tag, words) {
+	findObject: function(tag, words, living) {
 
-		var caller = this.caller;
 		var obj    = this.holder;
 
 		var list = [];
@@ -174,61 +177,61 @@ AdvancedParser = new Class({
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			}
-			if (caller.room) {
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getItems());
 			}
 		} else if (tag == "direct:living") {
-			list.push(caller);
+			list.push(living);
 		} else if (tag == "direct:object") {
 			list.push(obj);
 		} else if (tag == "direct:player") {
-			if (caller.player) { list.push(caller); }
+			if (living.player) { list.push(living); }
 		} else if (tag=="indirect") {
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			}
-			if (caller.room) {
-				list.combine(caller.room.getLiving());
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getLiving());
+				list.combine(living.room.getItems());
 			}
-			list.erase(caller);
+			list.erase(living);
 			list.erase(obj);
 		} else if (tag == "indirect:object") {
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			}
-			if (caller.room) {
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getItems());
 			} list.erase(obj);
 		} else if (tag == "indirect:object:me") {
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			} list.erase(obj);
 		} else if (tag == "indirect:object:here") {
-			if (caller.room) {
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getItems());
 			} list.erase(obj);
 		} else if (tag == "indirect:object:me:here") {
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			} 
-			if (caller.room) {
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getItems());
 			} list.erase(obj);
 		} else if (tag == "indirect:object:here:me") {
-			if (caller.room) {
-				list.combine(caller.room.getItems());
+			if (living.room) {
+				list.combine(living.room.getItems());
 			}
 			if (obj.container) {
 				list.combine(obj.container.getItems());
 			} list.erase(obj);
 		} else if (tag == "indirect:living") {
-			if (caller.room) {
-				list.combine(caller.room.getLiving().erase(obj));
+			if (living.room) {
+				list.combine(living.room.getLiving().erase(living));
 			}
 		} else if (tag == "indirect:player") {
-			if (caller.room) {
-				list.combine(caller.room.getPlayers().erase(obj));
+			if (living.room) {
+				list.combine(living.room.getPlayers().erase(living));
 			}
 		} else if (tag == "string") {
 			return words;
@@ -264,9 +267,9 @@ AdvancedParser = new Class({
 		if (this.holder.container) {
 			list.combine(this.holder.container.getItems());
 		}
-		if (this.caller.room) {
-			list.combine(this.caller.room.getLiving());
-			list.combine(this.caller.room.getItems());
+		if (this.living.room) {
+			list.combine(this.living.room.getLiving());
+			list.combine(this.living.room.getItems());
 		}
 		return this.checkList(list, words);
 	},

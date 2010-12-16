@@ -68,16 +68,19 @@ var polisher = new Class({
 
 });
 
-var living = new polisher();
-living.world = new World({
+var world = new World({
 	name: 'test',
-	world_path: '../example_world',
+	world_path: 'example_world',
 	start_room: 'lobby',
 	port: '1111'
 });
+
+var living = new polisher();
+living.world = world;
 living.addItem(new brush());
 living.addItem(new locket());
 living.addItem(new toothbrush());
+
 
 var successMessage = "You polish the brass locket with the scrubbing brush.";
 describe('advanced parsing', {
@@ -93,34 +96,42 @@ describe('advanced parsing', {
 		assert.equal(expected, result);
 	},
 
-	'<direct:object> and <indirect:object> from caller inventory': function() {
-		var result = living.parseCommand("polish locket with brush");
+	'polish locket with brush: <direct:object> and <indirect:object> from caller inventory': function() {
+		var result = living.do("polish locket with brush");
 		assert.equal(result, successMessage);
 	},
 
-	'alternate syntax (using vs. with)': function() {
-		var result = living.parseCommand("polish locket using brush");
+	'polish locket using brush: alternate syntax (using vs. with)': function() {
+		var result = living.do("polish locket using brush");
 		assert.equal(result, successMessage);
 	},
 
-	'direct object called instead of indirect': function() {
-		var result = living.parseCommand("polish brush with brush");
+	'polish brush with brush: direct object called instead of indirect': function() {
+		var result = living.do("polish brush with brush");
 		assert.equal(result, "You can't do that with the scrubbing brush.");
 	},
 
-	'indirect object called instead of direct': function() {
-		var result = living.parseCommand("rebristle locket");
+	'rebristle locket: indirect object called instead of direct': function() {
+		var result = living.do("rebristle locket");
 		assert.equal(result, "You can't do that with the brass locket.");
 	},
 
-	'single argument <direct:object>, no delimiters, custom handler': function() {
-		var result = living.parseCommand("open locket");
+	'open locket: single argument <direct:object>, no delimiters, custom handler': function() {
+		var result = living.do("open locket");
 		assert.equal(result, "There are narwhals inside!");
 	},
 
-	'pass through failures': function() {
-		var result = living.parseCommand("polish brush with toothbrush");
+	'polish brush with toothbrush: pass through failures': function() {
+		var result = living.do("polish brush with toothbrush");
 		assert.equal(result, "You polish the scrubbing brush with the toothbrush.");
+	},
+
+	'feed strawberry to rat': function() {
+		var player = new Player();
+		player.name = 'trogdor';
+		player.enterWorld(world);
+		player.moveTo('lobby');
+		player.do('take strawberry');
 	}
 
 });

@@ -214,7 +214,7 @@ World = new Class({
 				var keys = 0;
 				Object.each(mod, function() { keys++; });
 				if (!keys) { return false; }
-				else { return mod; }
+					else { return mod; }
 			}
 		} catch (e) {
 			if (fallbacks.length) {
@@ -261,8 +261,10 @@ World = new Class({
 			} else {
 				try { eval('data='+raw); }
 				catch (e) { log_error(e); }
-			}callback(err, data);
+			} callback(err, data);
+			return data;
 		};
+
 		if (opts.sync) {
 			try {
 				var data = fs.readFileSync(file);

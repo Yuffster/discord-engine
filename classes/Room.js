@@ -14,6 +14,13 @@ Room = new Class({
 		this.create();
 	},
 
+	load_item: function(path) {
+		var item = this.world.loadItem(path);
+		if (item) {
+			this.addItem(item);
+		}
+	},
+
 	addPlayer: function(player) {
 		this.players[player.name.toLowerCase()] = player;
 	},

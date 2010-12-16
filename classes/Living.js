@@ -230,7 +230,7 @@ Living = new Class({
 
 	},
 
-	parseCommand: function(string) {
+	do: function(string) {
 
 		if (!string) return;
 
@@ -254,9 +254,10 @@ Living = new Class({
 		}
 
 		var success = false;
+		var caller = this;
 		this.getItems().each(function(item) {
 			if (!success && item.parseLine) {
-				result = item.parseLine(string, this);
+				result = item.parseLine(string, caller);
 				if (result) { out = result; }
 				if (item.failure_message) {
 					out = item.failure_message;
@@ -288,7 +289,7 @@ Living = new Class({
 
 	callNextAction: function() {
 		if (this.queue.length) {
-			return this.parseCommand(this.queue.shift());
+			return this.do(this.queue.shift());
 		} else if (this.target) {
 			return this.combatTurn();
 		}
@@ -298,7 +299,7 @@ Living = new Class({
 	 * Force the character to do something.
 	 */
 	force: function(command) {
-		return this.parseCommand(command);
+		return this.queueCommand(command);
 	},
 
 /**

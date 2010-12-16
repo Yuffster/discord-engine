@@ -49,6 +49,10 @@ Item = new Class({
 	on_drop: function() {
 	},
 
+	getDescription: function() {
+		return this.long;
+	},
+
 	getNoun: function() {
 		if (this.noun) return this.noun;
 		else return this.short.split(' ').pop();

@@ -28,6 +28,7 @@ exports.main = new Class({
 			this.emit("%You squeak%s happily.");
 			this.emit("%You quickly scarf%s down "+item.get('short')+".");
 			this.emit("%You look%s at %Name expectantly.", source);
+			return;
 		}
 
 		var items = ['hat', 'monocle'];
@@ -35,16 +36,15 @@ exports.main = new Class({
 		items.each(function(type) {
 			
 			if (item.matches("tiny "+type)) {
-				if (this.getItem("tiny "+type)) {
+				if (this.countItem("tiny "+type)>1) {
 					this.force(
 						"say This clearly isn't mine; I'm already holding my "+
 						"tiny "+type+"."
-					);
+					); return;
 				}
 				this.force("say My tiny "+type+", you've found it!");
 				this.force("wear tiny "+type);
 			}
-
 
 		}, this);
 

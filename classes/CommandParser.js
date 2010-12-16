@@ -28,10 +28,11 @@ CommandParser = new Class({
 		};
 	},
 
-	parseLine: function(line, caller) {
+	parseLine: function(line, living) {
+		this.living = living;
 		this.failure_message = false;
 		var realParser = new AdvancedParser();
-		var output = realParser.parseLine(line, caller, this);
+		var output = realParser.parseLine(line, this.living, this);
 		if (realParser.failure_message) {
 			this.failure_message = realParser.failure_message;
 		} return output;
