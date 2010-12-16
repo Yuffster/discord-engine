@@ -98,7 +98,7 @@ AdvancedParser = new Class({
 
 	extractArguments: function(syntax, line) {
 
-		//The ' is a delimiter within a tag for living-friendly syntax
+		//The ' is a delimiter within a tag for user-friendly syntax
 		// display.
 		var patt = /(<[\w:']*>)/g;
 		var items = syntax.split(patt).filter(function(i) { 
