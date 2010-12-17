@@ -197,8 +197,7 @@ Living = new Class({
 		if (!message.each) message = [message];
 		message.each(function(line) {
 			if (!line || !line.charAt) return;
-		    var f = line.charAt(0).toUpperCase();
-			line  = f + line.substr(1);
+		    line = line.charAt(0).toUpperCase() + line.substr(1);
 			this.logOutput(line);
 			this.fireEvent('output', [line,style]);
 		}, this);
@@ -232,8 +231,9 @@ Living = new Class({
 	 */
 	testCommand: function(command, expected) {
 		var result = this.do(command);
+		if (result===true) { result = false; }
 		result = result || this.getLastMessage();
-		if (assert && assert.equal) {
+		if (assert && assert.equal && expected) {
 			assert.equal(result, expected, "\nExpected: "+expected+"\nGot: "+result);
 		}
 		if (!expected) { return result; }
@@ -256,11 +256,10 @@ Living = new Class({
 		var me = this.get('short');
 
 		if (!this.get('room')) {
-			log_error("Living "+this.get('short')+" should have a room but does not!");
-			return;
+			throw "Living "+this.get('short')+" has no room.";
 		}
 
-		Object.each(this.get('room').get('players'), function(player, name) {
+		Object.each(this.get('room').get('living'), function(player, name) {
 			if (target && player.name == target.name) {
 				player.send(messages[1], style);
 			} else if (player.name != me) {
@@ -322,8 +321,7 @@ Living = new Class({
 		//
 		//Otherwise, the parser will treat it like an invalid command.
 
-		if (out===true) return;
-		if (!out) out = 'What?';
+		if (out===false) { out = 'What?'; }
 
 		if (out.charAt) {
 			out.charAt(0).toUpperCase() + out.slice(1);
@@ -333,7 +331,7 @@ Living = new Class({
 			});
 		}
 		
-		this.send(out);
+		if (out !== true || out) { this.send(out); }
 
 		return out;
 

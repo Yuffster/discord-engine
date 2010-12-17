@@ -66,7 +66,7 @@ AdvancedParser = new Class({
 			var valid = true;
 			args.each(function(obj, i) {
 				if (!valid) { return; }
-				args[i] = this.findObject(obj.tag, obj.str, this.living);
+				args[i] = this.findObject(obj.tag, obj.str);
 				if (!args[i]) {
 					valid = false;
 					var any = this.findAnyObject(obj.str);
@@ -79,12 +79,17 @@ AdvancedParser = new Class({
 					}
 				}
 			}, this);
+			//If we have arguments and the syntax hasn't been discounted.
 			if (valid && args && args.length) {
 				result = handler.bind(this.holder).pass(args)();	
+				if (result!==false) { 
+					if (!result) { result = true; }
+					success = true;
+				}
 				if (this.holder.failure_message) {
 					this.failure_mesage = this.holder.failure_message;
 					result = this.failure_message;
-				} else if (result) { success = true; }
+				} else { success = true; }
 			} else if (!valid && this.failure_message) {
 				result = this.failure_message;
 			}
@@ -161,9 +166,10 @@ AdvancedParser = new Class({
 
 	},
 
-	findObject: function(tag, words, living) {
+	findObject: function(tag, words) {
 
 		var obj       = this.holder,
+		    living    = this.living,
 		    list      = [], 
 			room      = (living.get('room')) ? living.get('room').getItems()   : [],
 		    container = (obj.container) ? obj.container.getItems()             : [],
