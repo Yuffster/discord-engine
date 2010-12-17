@@ -21,15 +21,8 @@ exports.main = new Class({
 	   first bit of the command matches this object.
 	*/
 	do_feed: function(item, target) {
-		if (!target) {
-			this.emit(
-				"%You attempt%s to feed "+this.get('short')+" to %their "+
-			    "imaginary friend."
-			); return true;
-		}
-		this.living.removeItem(item);
-		this.living.emit("%You feed%s "+this.get('short')+" to %Name.", target);
-		return "You feel kinder!";
+		this.user.removeItem(item);
+		this.user.emit("%You feed%s "+this.get('definite')+" to %Name.", target);
 	}
 
 });
