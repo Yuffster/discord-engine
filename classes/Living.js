@@ -42,6 +42,12 @@ Living = new Class({
 	//List of currently equipped items.
 	equipped: [],
 
+	//Last 20 messages sent to the player.
+	messageLog: [],
+
+	//Last 20 commands used by the player.
+	history: [],
+
 	init: function(name) {
 		if (name) this.set('name', name);
 		this.startHeart();
@@ -107,7 +113,7 @@ Living = new Class({
 	},
 
 	getShort: function(short) {
-		return this.name || this.short || "a thing";
+		return this.name || this.short || "thing";
 	},
 
 	getLong: function(long) {
@@ -184,10 +190,55 @@ Living = new Class({
 	},
 
 	/**
-	 * Because 'send' likes to send things to the character, and NPCs don't
-	 * need to be sent messages.
+	 * The main engine will add an event to the player object to output data.
 	 */
-	send: function(message, delay) { },
+	send: function(message, style) {
+		if (!message) return;
+		if (!message.each) message = [message];
+		message.each(function(line) {
+			if (!line || !line.charAt) return;
+		    var f = line.charAt(0).toUpperCase();
+			line  = f + line.substr(1);
+			this.logOutput(line);
+			this.fireEvent('output', [line,style]);
+		}, this);
+	},
+
+	logOutput: function(message) {
+		if (this.messageLog.length > 20) { this.messageLog.shift(); }
+		this.messageLog.push(message);
+	},
+
+	getLastMessage: function() {
+		return this.messageLog.getLast();
+	},
+
+	logInput: function(message) {
+		if (this.history.length > 20) { this.history.shift(); }
+		this.history.push(message);
+	},
+
+	getLastCommand: function() {
+		return this.history.getLast();
+	},
+
+	/**
+	 * Utility method -- pass in the command the expected result.  Will return
+	 * true if the command's output matches the result, and false otherwise.
+	 *
+	 * Will first look at the output of the command (returned by the command 
+	 * function).  If the command only returns true, it will look at the last
+	 * message sent to the character, which will catch things like emits.
+	 */
+	testCommand: function(command, expected) {
+		var result = this.do(command);
+		result = result || this.getLastMessage();
+		if (assert && assert.equal) {
+			assert.equal(result, expected, "\nExpected: "+expected+"\nGot: "+result);
+		}
+		if (!expected) { return result; }
+		return (result==expected);
+	},
 
 	/**
 	 * Emits a message to everyone in the room.
@@ -226,6 +277,7 @@ Living = new Class({
 	 */
 	queueCommand: function(str) {
 
+		this.logInput(str);
 		this.queue.push(str);
 
 	},

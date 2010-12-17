@@ -12,20 +12,6 @@ Player = new Class({
 
 	location: '', 
 
-	/**
-	 * The main engine will add an event to the player object to output data.
-	 */
-	send: function(message, style) {
-		if (!message) return;
-		if (!message.each) message = [message];
-		message.each(function(line) {
-			if (!line || !line.charAt) return;
-		    var f = line.charAt(0).toUpperCase();
-			line  = f + line.substr(1);
-			this.fireEvent('output', [line,style]);
-		}, this);
-	},
-
 	prompt: function(fun, message, style) {
 		this.setPrompt(fun.bind(this));
 		this.send(message, style);
