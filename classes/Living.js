@@ -231,8 +231,6 @@ Living = new Class({
 	 */
 	testCommand: function(command, expected) {
 		var result = this.do(command);
-		if (result===true) { result = false; }
-		result = result || this.getLastMessage();
 		if (assert && assert.equal && expected) {
 			assert.equal(result, expected, "\nExpected: "+expected+"\nGot: "+result);
 		}
@@ -331,9 +329,11 @@ Living = new Class({
 			});
 		}
 		
-		if (out !== true || out) { this.send(out); }
+		if (out !== true && out) {
+			this.send(out);
+		}
 
-		return out;
+		return this.getLastMessage();
 
 	},
 
