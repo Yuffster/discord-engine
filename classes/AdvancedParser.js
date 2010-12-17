@@ -20,8 +20,6 @@ AdvancedParser = new Class({
 
 	holder: null,
 
-	foo: "FOO",
-
 	failure_message: null,
 
 	getPatterns: function(command, commands) {
@@ -165,21 +163,20 @@ AdvancedParser = new Class({
 
 	findObject: function(tag, words, living) {
 
-		var obj    = this.holder;
-
-		var list = [];
+		var obj       = this.holder,
+		    list      = [], 
+			room      = (living.get('room')) ? living.get('room').getItems()   : [],
+		    container = (obj.container) ? obj.container.getItems()             : [],
+		    everyone  = (living.get('room')) ? living.get('room').getLiving()  : [],
+		    players   = (living.get('room')) ? living.get('room').getPlayers() : [];
 
 		// A lot of reproduction of code here!  This will make it easier for people
 		// to understand exactly what each tag will return.
 		if (tag=='direct') {
 			list.push(obj);
 		} else if (tag == "object") {
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			}
-			if (living.room) {
-				list.combine(living.room.getItems());
-			}
+			list.combine(container);
+			list.combine(room);
 		} else if (tag == "direct:living") {
 			list.push(living);
 		} else if (tag == "direct:object") {
@@ -187,52 +184,29 @@ AdvancedParser = new Class({
 		} else if (tag == "direct:player") {
 			if (living.player) { list.push(living); }
 		} else if (tag=="indirect") {
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			}
-			if (living.room) {
-				list.combine(living.room.getLiving());
-				list.combine(living.room.getItems());
-			}
+			list.combine(container);
+			list.combine(everyone);
 			list.erase(living);
 			list.erase(obj);
 		} else if (tag == "indirect:object") {
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			}
-			if (living.room) {
-				list.combine(living.room.getItems());
-			} list.erase(obj);
+			list.combine(container).combine(room);
+			list.erase(obj);
 		} else if (tag == "indirect:object:me") {
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			} list.erase(obj);
+			list.combine(container);
+			list.erase(obj);
 		} else if (tag == "indirect:object:here") {
-			if (living.room) {
-				list.combine(living.room.getItems());
-			} list.erase(obj);
+			list.combine(room);
+			list.erase(obj);
 		} else if (tag == "indirect:object:me:here") {
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			} 
-			if (living.room) {
-				list.combine(living.room.getItems());
-			} list.erase(obj);
+			list.combine(obj).combine(room);
+			list.erase(obj);
 		} else if (tag == "indirect:object:here:me") {
-			if (living.room) {
-				list.combine(living.room.getItems());
-			}
-			if (obj.container) {
-				list.combine(obj.container.getItems());
-			} list.erase(obj);
+			list.combine(room);
+			list.combine(container);
+			list.erase(obj);
 		} else if (tag == "indirect:living") {
-			if (living.room) {
-				list.combine(living.room.getLiving().erase(living));
-			}
+			list.combine(everyone).erase(living);
 		} else if (tag == "indirect:player") {
-			if (living.room) {
-				list.combine(living.room.getPlayers().erase(living));
-			}
 		} else if (tag == "string") {
 			return words;
 		} else if (tag == "number") {
