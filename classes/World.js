@@ -12,6 +12,7 @@ World = new Class({
 	Extends: Base,
 
 	players     : {},
+	zones       : {},
 	rooms       : {},
 	commands    : {},
 	items       : {},
@@ -40,7 +41,7 @@ World = new Class({
 	 * object files.
 	 */
 	init: function(config) {
-		var required = ['name', 'world_path', 'start_room', 'port'];
+		var required = ['name', 'world_path', 'start_room'];
 		required.each(function(key) {
 			if (!config[key]) {
 				sys.puts("Required config option \""+key+"\" not supplied.");
@@ -57,6 +58,38 @@ World = new Class({
 		this.players     = this.players;
 		this.rooms       = this.rooms;
 		this.items       = this.items;
+
+		this.initializeRooms();
+	},
+
+	initializeRooms: function() {
+
+		var path = this.joinPath(this.worldPath+this.roomPath);
+
+		//Recursive glob of all .js files in rooms/.
+		var files = this.globJS(path);
+
+		var patt  = new RegExp('^'+path);
+
+		//File all the rooms into zones.
+		files.each(function(file) {
+			file = file.replace(patt, '').replace(/\.js$/, '');
+			var room = this.getRoom(file);
+			if (!room) {
+				return;
+			}
+			var zone = this.getZone(room.get('zoneName'));
+			var coords = zone.addRoom(room);
+		}, this);
+
+		//Have all the zones map their rooms.
+		Object.each(this.zones, function(zone) { zone.mapRooms(); });
+
+	},
+
+	getZone: function(name) {
+		if (!this.zones[name]) { this.zones[name] = new Zone(name); }
+		return this.zones[name];
 	},
 
 	/**
@@ -114,6 +147,7 @@ World = new Class({
 			if (room) {
 				this.rooms[path]      = new room(this);
 				this.rooms[path].path = path;
+				this.rooms[path].zone = this.getZone(this.rooms[path].zoneName);
 			}
 		} return this.rooms[path];
 	},
@@ -191,6 +225,39 @@ World = new Class({
 
 	},
 
+	joinPath: function(filename) {
+
+		var end   = (filename.match(/\/$/)) ? '/' : '';
+		var start = (filename.match(/^\//)) ? '/' : '';
+
+		var path = filename.split("/");
+		path.each(function(p,i) {
+			if (p=='..') { path[i-1] = ''; path[i] = ''; }
+		});
+
+		path = path.filter(function(p) { return (p=='') ? false : true; });
+
+		return start+path.join('/')+end;
+
+	},
+
+	globJS: function(filename) {
+
+		filename = this.joinPath(filename);
+
+		//Synchronous is OK in this case because we'll be loading these files on initialization.
+		var files = [];
+		var stats = fs.statSync(filename);
+		if (stats.isFile() && filename.match(/\.js$/)) {
+			files.push(filename);
+		} else if (stats.isDirectory()) {
+			fs.readdirSync(filename+"/").each(function(f) {
+				files.append(this.globJS(filename+"/"+f));
+			}, this);
+		} return files;
+
+	},
+
 	loadModule: function(path, opts) {
 
 		var fallbacks = [];
@@ -212,9 +279,9 @@ World = new Class({
 				return mod.main;
 			} else {
 				var keys = 0;
-				Object.each(mod, function() { keys++; });
+				Object.each(mod, function(k) { keys++; });
 				if (!keys) { return false; }
-					else { return mod; }
+				else { return mod; }
 			}
 		} catch (e) {
 			if (fallbacks.length) {

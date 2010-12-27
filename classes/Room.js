@@ -8,6 +8,13 @@ Room = new Class({
 	desc_items: {},
 	players: {},
 	living: [],
+	coordinates: [],
+
+	//The name of the zone to place this room within.
+	zoneName: 'default',
+
+	//The zone object.
+	zone: null,
 
 	initialize: function(world) {
 		this.world   = world;
@@ -16,9 +23,7 @@ Room = new Class({
 
 	load_item: function(path) {
 		var item = this.world.loadItem(path);
-		if (item) {
-			this.addItem(item);
-		}
+		if (item) { this.addItem(item); }
 	},
 
 	addPlayer: function(player) {
@@ -73,6 +78,15 @@ Room = new Class({
 		return this.exits;
 	},
 
+	getExitRooms: function() {
+		var exits = {};
+		Object.each(this.exits, function(path, direction) {
+			var room = this.world.getRoom(path);
+			if (room) { exits[direction] = room; }
+		}, this);
+		return exits;
+	},
+
 	hasExit: function(exit) {
 		return typeof this.exits[exit] !== 'undefined';
 	},
@@ -81,6 +95,11 @@ Room = new Class({
 
 		if (!observer) return;
 		var lines = [];
+		
+		//Debugging coords
+		var c = this.get('coordinates');
+		observer.send("["+c[0]+", "+c[1]+", "+c[2]+"]");
+
 		observer.send(this.get('long'));
 
 		var exits = [];
@@ -91,10 +110,12 @@ Room = new Class({
 		else observer.send('Exits: '+exits.join(', '), 'exits');
 		
 		var living = this.listLiving(observer);
-		lines.push(
-			living.join(', ') +
-			(living.length>1 ? " are" : " is") + " standing here."
-		);
+		if (living) {
+			lines.push(
+				living.join(', ') +
+				(living.length>1 ? " are" : " is") + " standing here."
+			);
+		}
 
 		var items = this.listItems();
 		if (items.length>0){
@@ -157,6 +178,10 @@ Room = new Class({
 
 	},
 
+	set_zone: function(name) {
+		this.zoneName = name;
+	},
+
 	add_exit: function(dir, loc) {
 		this.exits[dir] = loc;
 	},
@@ -175,6 +200,10 @@ Room = new Class({
 
 	getDetail: function(item) {
 		return this.desc_items[item];
+	},
+
+	getCoordinates: function() {
+		return this.zone.getCoordinates(this);
 	},
 
 	create: function() {

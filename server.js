@@ -20,6 +20,7 @@
 ENGINE_PATH = __dirname+'/';
 require.paths.push(ENGINE_PATH);
 require.paths.push('../');
+require('lib/mootools').apply(GLOBAL);
 require('engine');
 
 /**
@@ -32,6 +33,8 @@ if (!config_file) {
 	sys.puts("Usage: node ./server.js <config file>");
 	process.exit();
 }
+
+onerror = function(err) { sys.puts(":("); };
 
 try {
 	config = fs.readFileSync(config_file);
@@ -49,14 +52,15 @@ if (!CONFIG) {
 	process.exit();
 }
 
-var world = new World(CONFIG);
-
 log_error = function(err) {
 	sys.puts('ERROR: '.color('red')+err);
+	if (err.stack) { sys.puts("====>"+err.stack); }
 }
 
+var world = new World(CONFIG);
+
 on_error = log_error;
-process.on('uncaughException', log_error);
+process.on('uncaughtException', log_error);
 
 var net = require('net');
 var server = net.createServer(function (stream) {
