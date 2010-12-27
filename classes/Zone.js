@@ -47,9 +47,9 @@ Zone = new Class({
 		if (this.mapped[room.path]) { return false; } 
 
 		this.placeRoom(room,coords);
+
+		this.mapped[room.path] = coords.clone();
 	
- 		//Remember that we mapped it.
-		this.mapped[room.path] = coords;
 
 		//Go through the exits, calculate the coordinates for those.
 		//Mixed directions are not currently supported.
@@ -76,14 +76,14 @@ Zone = new Class({
 	},
 
 	placeRoom: function (room,coords) {
+		this.mapped[room] = coords;
 		var x = coords[0], y = coords[1], z = coords[2];
 		if (!this.map[x]) { this.map[x] = {}; }
 		if (!this.map[x][y]) { this.map[x][y] = {}; }
 		var other = this.map[x][y][z];
 		if (other) {
 			log_error("Room coordinate conflict! ("+room.path+", "+other.path+")");
-		}
-		this.map[x][y][z] = room;
+		} this.map[x][y][z] = room;
 	},
 
 	getCoordinates: function(room) {
@@ -91,10 +91,27 @@ Zone = new Class({
 	},
 
 	getRoom: function(coords) {
+		var x = coords[0], y = coords[1], z = coords[2];
 		if (!this.map[x]) { return false; }
 		if (!this.map[x][y]) { return false; }
 		if (!this.map[x][y][z]) { return false; }
-		return this.map[x][y][z];
+		return this.map[x][y][z] || false;
+	},
+
+	getAdjacentRooms: function(start, range, zRange) {
+		zRange = zRange || 0;
+		var x = start[0], y = start[1], z = start[2];
+		var rooms = [], coords = [], c = [];
+		rooms.push(this.getRoom(start));
+		for(var i = x-range; i <= x+range; i++){
+			for(var j = y-range; j <= y+range; j++){
+				c = [i,j,z];
+				coords.push(c);
+				var room = this.getRoom(c);
+				if (room) { rooms.push(room); }
+			}
+		}
+		return rooms;
 	},
 
 	remap: function() {
