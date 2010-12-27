@@ -275,6 +275,9 @@ Living = new Class({
 	queueCommand: function(str) {
 
 		this.logInput(str);
+		if (!this.queue.length) {
+			return this.do(str);
+		}
 		this.queue.push(str);
 
 	},
@@ -319,7 +322,7 @@ Living = new Class({
 		//
 		//Otherwise, the parser will treat it like an invalid command.
 
-		if (out===false) { out = 'What?'; }
+		if (!out) { out = 'What?'; }
 
 		if (out.charAt) {
 			out.charAt(0).toUpperCase() + out.slice(1);
