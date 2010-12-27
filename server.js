@@ -65,6 +65,8 @@ process.on('uncaughtException', log_error);
 var net = require('net');
 var server = net.createServer(function (stream) {
 
+	var enhanced = false;
+
 	stream.setEncoding('utf8');
 
 	var player = new Player();
@@ -79,6 +81,13 @@ var server = net.createServer(function (stream) {
 		stream.write(message.style(style).wordwrap(80)+"\r\n");
 	});
 
+	player.addEvent('guiOutput', function(obj, handler) {
+		if (!enhanced) { return false; }
+		var data = {'data':obj, 'handler':handler};
+		var json = JSON.encode(data);
+		stream.write("<!-- \n"+json+"\n-->\n");
+	});
+
 	player.addEvent('quit', function() { stream.end(); });
 
 	player.ip    = stream.remoteAddress;
@@ -88,7 +97,11 @@ var server = net.createServer(function (stream) {
 
 	player.prompt(Prompts.login, "Please enter your name.");
 
-	stream.on('data', player.onInput.bind(player));
+	stream.on('data', function(data) {
+		if (data.trim()==">>> GUI_ON <<<") { enhanced = true; return;  }
+		else if (data.trim().match(/^>>>(.*?)<<<$/)) { return; }
+		player.onInput(data);
+	});
 
 	stream.on('end', function () {
 		player.send("Goodbye.");

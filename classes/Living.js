@@ -203,6 +203,10 @@ Living = new Class({
 		}, this);
 	},
 
+	guiSend: function(message, handler) {
+		this.fireEvent('guiOutput', [message, handler]);
+	},
+
 	logOutput: function(message) {
 		if (this.messageLog.length > 20) { this.messageLog.shift(); }
 		this.messageLog.push(message);

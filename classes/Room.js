@@ -8,7 +8,6 @@ Room = new Class({
 	desc_items: {},
 	players: {},
 	living: [],
-	coordinates: [],
 
 	//The name of the zone to place this room within.
 	zoneName: 'default',
@@ -94,18 +93,23 @@ Room = new Class({
 	getDescription: function(observer) {
 
 		if (!observer) return;
-		var lines = [];
-		
-		//Debugging coords
-		var c = this.get('coordinates');
-		observer.send("["+c[0]+", "+c[1]+", "+c[2]+"]");
 
+		var lines = [];
+
+		//GUI Map
+		var rooms = this.getAdjacentRooms(5);
+		var obj = []; 
+		rooms.each(function(room) {
+			obj.push({'coords':room.get('coordinates'),'exits':room.get('exits')});
+		});
+		observer.guiSend(obj, 'map');
+
+		observer.send(this.get('short'));
 		observer.send(this.get('long'));
 
 		var exits = [];
-		Object.each(this.get('exits'), function(v,k) {
-			exits.push(k);
-		});
+		Object.each(this.get('exits'), function(v,k) { exits.push(k); });
+
 		if (exits.length==0) observer.send('There are no obvious exits.', 'exits');
 		else observer.send('Exits: '+exits.join(', '), 'exits');
 		
@@ -204,6 +208,10 @@ Room = new Class({
 
 	getCoordinates: function() {
 		return this.zone.getCoordinates(this);
+	},
+
+	getAdjacentRooms: function(range, zRange) {
+		return this.zone.getAdjacentRooms(this.getCoordinates(), range, zRange);
 	},
 
 	create: function() {
