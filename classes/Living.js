@@ -62,6 +62,10 @@ Living = new Class({
 		this.long = long;
 	},
 
+	get_long: function() {
+		return this;
+	},
+
 	add_alias: function(alias) {
 		this.aliases.push(alias);
 	},
@@ -117,7 +121,7 @@ Living = new Class({
 	},
 
 	getLong: function(long) {
-		return this.long || "%you look%s pretty ordinary.".expand(this)[1];
+		return (this.long || "%you look%s pretty ordinary.").expand(this)[1];
 	},
 
 	getCount: function() {
@@ -150,7 +154,7 @@ Living = new Class({
 		this.location = path;
 	},
 
-	//moveTo Includes tracking which players are where.
+	//moveTo includes tracking which players are where.
 	moveTo: function(path) {
 		var room = this.world.getRoom(path);
 		if (!room) return false;
@@ -300,8 +304,7 @@ Living = new Class({
 		var com = this.world.getCommand(command);
 
 		if (this.get('room') && this.get('room').hasExit(string)){
-			this.force('move '+ string);
-			return this.force('look');
+			return this.do('move '+ string);
 		} else if (com){
 			params = params.join(' ');
 			if (com.can_execute.bind(this)) {

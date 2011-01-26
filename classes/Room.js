@@ -35,6 +35,7 @@ Room = new Class({
 
 	removePlayer: function(player) {
 		delete(this.players[player.name.toLowerCase()]);
+		sys.puts(this.getPlayer(player.name.toLowerCase()));
 	},
 
 	removeLiving: function(living) {
@@ -60,7 +61,7 @@ Room = new Class({
 
 	getLiving: function(name) {
 		if (!name) {
-			living = this.living;
+			living = Array.clone(this.living);
 			living.combine(this.get('players'));
 			return living;
 		}
@@ -79,8 +80,8 @@ Room = new Class({
 
 	getExitRooms: function() {
 		var exits = {};
-		Object.each(this.exits, function(path, direction) {
-			var room = this.world.getRoom(path);
+		Object.each(this.exits, function(data, direction) {
+			var room = this.world.getRoom(data.to);
 			if (room) { exits[direction] = room; }
 		}, this);
 		return exits;
@@ -97,14 +98,30 @@ Room = new Class({
 		var lines = [];
 
 		//GUI Map
-		var rooms = this.getAdjacentRooms(5);
+		var rooms = this.getAdjacentRooms(3);
 		var obj = []; 
-		rooms.each(function(room) {
-			obj.push({'coords':room.get('coordinates'),'exits':room.get('exits')});
-		});
+		rooms.each(function(r) {
+			var room = r.room;
+			if (!room) {
+				obj.push({coords: r.coords, room:false});
+			} else {
+				var c = this.getCoordinates(), d = r.coords, current = false;
+				if (c[0]==d[0]&&c[1]==d[1]) { current = true; }
+				obj.push({
+					'coords':room.get('coordinates'),
+		 			room: {
+						'exits'  : room.get('exits'),
+						'short'  : room.get('short'),
+						'coords' : d,
+						'current': current
+					}
+				});
+			}
+		}, this);
 		observer.guiSend(obj, 'map');
 
-		observer.send(this.get('short'));
+		var debug = " ["+this.getCoordinates()+':'+this.get('path')+"]";
+		observer.send(this.get('short')+debug);
 		observer.send(this.get('long'));
 
 		var exits = [];
@@ -186,8 +203,9 @@ Room = new Class({
 		this.zoneName = name;
 	},
 
-	add_exit: function(dir, loc) {
-		this.exits[dir] = loc;
+	add_exit: function(dir, loc, type) {
+		type = type || 'open';
+		this.exits[dir] = {to: loc, type: type};
 	},
 
 	add_living: function(path) {

@@ -49,31 +49,32 @@ Zone = new Class({
 		this.placeRoom(room,coords);
 
 		this.mapped[room.path] = coords.clone();
-	
 
 		//Go through the exits, calculate the coordinates for those.
 		//Mixed directions are not currently supported.
 		Object.each(room.getExitRooms(), function(room, dir) {
-			var c = coords;
+			var c = Array.clone(coords);
 			if (dir=='east') {
 				c[0] = c[0]+1;
 			} else if (dir=='west') { 
 				c[0] = c[0]-1;
 			} else if (dir=="north")  {
-				c[1] = c[1]+1;
-			} else if (dir=="south") {
 				c[1] = c[1]-1;
+			} else if (dir=="south") {
+				c[1] = c[1]+1;
 			} else if (dir=="up") {
 				c[2] = c[2]+1;
 			} else if (dir=="down") {
 				c[2] = c[2]-1;
 			} else {
 				log_error("Unmappable room direction: "+dir);
-			}
-			this.mapRoom(room, c);
+			} this.mapRoom(room, c);
 		}, this);
 
 	},
+
+	//If set to true, we'll have to walk rooms every time we want surroundings.
+	coordinateConflict: false,
 
 	placeRoom: function (room,coords) {
 		this.mapped[room] = coords;
@@ -82,12 +83,14 @@ Zone = new Class({
 		if (!this.map[x][y]) { this.map[x][y] = {}; }
 		var other = this.map[x][y][z];
 		if (other) {
-			log_error("Room coordinate conflict! ("+room.path+", "+other.path+")");
+			log_error("Room coordinate conflict! (["+[x,y,z]+"]: "+room.path+", "+other.path+")");
+			this.coordinateConflict = true;
+			return;
 		} this.map[x][y][z] = room;
 	},
 
 	getCoordinates: function(room) {
-		return this.mapped[room.path];
+		return this.mapped[room.path] || false;
 	},
 
 	getRoom: function(coords) {
@@ -101,14 +104,14 @@ Zone = new Class({
 	getAdjacentRooms: function(start, range, zRange) {
 		zRange = zRange || 0;
 		var x = start[0], y = start[1], z = start[2];
-		var rooms = [], coords = [], c = [];
-		rooms.push(this.getRoom(start));
+		var rooms = [], coords = [], c = [], map = {};
 		for(var i = x-range; i <= x+range; i++){
 			for(var j = y-range; j <= y+range; j++){
 				c = [i,j,z];
 				coords.push(c);
 				var room = this.getRoom(c);
-				if (room) { rooms.push(room); }
+				if (!room) { rooms.push({'coords':c, room:false}); }
+				else { rooms.push({coords:c, room:room}); }
 			}
 		}
 		return rooms;

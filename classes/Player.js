@@ -106,11 +106,28 @@ Player = new Class({
 		this.fireEvent('quit');
 	},
 
+	/* This method is executed when a character is created. */
 	on_birth: function() {
 
 	},
 
+	/* Executed when a player logs in to an existing character. */
 	on_login: function() {
+
+	},
+
+	/* Executed when a player types 'quit'. */
+	on_logout: function() {
+
+	},
+
+	/* Executed when a player's connection is dropped. */
+	on_netdead: function() {
+
+	}, 
+
+	/* Executed once a minute if a player hasn't typed any commands. */
+	on_idle: function(minutes) {
 
 	}
 
