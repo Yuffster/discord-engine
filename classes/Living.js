@@ -323,9 +323,6 @@ Living = new Class({
 
 		if (aliases[command]) { command = aliases[command]; }
 
-		sys.puts(aliases[command]);
-		sys.puts(command);
-
 		var com = this.world.getCommand(command);
 
 		//Check to see if it's a room exit.
