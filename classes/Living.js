@@ -290,6 +290,10 @@ Living = new Class({
 
 	},
 
+	/**
+	 * The function in charge of taking a line of text from the player and 
+	 * converting it into stuff the player does.
+	 */
 	do: function(string) {
 
 		if (!string) return;
@@ -298,13 +302,37 @@ Living = new Class({
 
 		if (string=='__wait') return;
 
+		//Hard-coded aliases for directions.  I'll put them somewhere proper
+		//when I've finished with the alias system.
+		var aliases = {
+			'nw':'northwest',
+			'sw':'southwest',
+			'se':'southeast',
+			'ne':'northeast',
+			'n' :'north',
+			's' :'south',
+			'e' :'east',
+			'w' :'west',
+			'd' :'down',
+			'u' :'up'
+		};
+
 		var params = string.split(' ');
 		var command = params.shift();
 		var out = '';
+
+		if (aliases[command]) { command = aliases[command]; }
+
+		sys.puts(aliases[command]);
+		sys.puts(command);
+
 		var com = this.world.getCommand(command);
 
+		//Check to see if it's a room exit.
 		if (this.get('room') && this.get('room').hasExit(string)){
 			return this.do('move '+ string);
+		} else if (this.get('room') && this.get('room').hasExit(command)) {
+			return this.do('move '+command);
 		} else if (com){
 			params = params.join(' ');
 			if (com.can_execute.bind(this)) {
