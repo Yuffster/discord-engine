@@ -14,24 +14,53 @@ AdvancedParser = new Class({
 
 	Implements: CommandParser,
 
-	commands: [],
+	//Format: command: { [syntaxes], method }
+	commands: {},
+
+	//Format: pattern: method
+	syntaxes: {},
+
+	//Until we're set for multiple syntaxes, this will hold us over.
+	syntax: null,
 
 	living: null, //The living object calling the command.
 
-	holder: null,
+	holder: null, //The object this command is defined on.
 
 	failure_message: null,
 
+	/**
+	 * This method is intended to let the developer create different handlers
+	 * for different argument lists.
+	 *
+	 * Right now it just does one pattern and one handler, but it should 
+	 * eventually be more complex.
+	 */
+	add_syntax: function(pattern, handler) {
+		this.set_syntax(pattern, handler);
+	},
+
+	set_syntax: function(pattern, handler) {
+		handler = handler || this.execute;
+		this.add_command(this.command, pattern, handler);
+	},
+
+	/**
+	 * Get syntax patterns for a particular command.
+	 */
 	getPatterns: function(command, commands) {
 		commands = commands || this.commands;
 		var com = commands[command];
 		return (com) ? com.syntax : false;
 	},
 
+	/**
+	 * Figures out which function to use to handle a command.
+	 */
 	getHandler: function(command, commands) {
 		commands = commands || this.commands;
 		var com = commands[command];
-		return (com) ? com.method: false;
+		return (com) ? com.method : false;
 	},
 
 	/**
@@ -62,26 +91,29 @@ AdvancedParser = new Class({
 		patterns.each(function(syntax) {
 			if (success) { return; }
 			var args = this.extractArguments(syntax, line);
-			if (!args) { return false; }
+			if (args===false) { return false; }
 			var valid = true;
-			args.each(function(obj, i) {
-				if (!valid) { return; }
-				args[i] = this.findObject(obj.tag, obj.str);
-				if (!args[i]) {
-					valid = false;
-					var any = this.findAnyObject(obj.str);
-					if (!any) {
-						this.add_failure_message("Cannot find '"+obj.str+"'.");
-					} else {
-						this.add_failure_message(
-							"You can't do that with "+any.get('definite')+"."
-						);
+			if (args.each) {
+				args.each(function(obj, i) {
+					if (!valid) { return; }
+					args[i] = this.findObject(obj.tag, obj.str);
+					if (!args[i]) {
+						valid = false;
+						var any = this.findAnyObject(obj.str);
+						if (!any) {
+							this.add_failure_message("Cannot find '"+obj.str+"'.");
+						} else {
+							this.add_failure_message(
+								"You can't do that with "+any.get('definite')+"."
+							);
+						}
 					}
-				}
-			}, this);
+				}, this);
+			}
 			//If we have arguments and the syntax hasn't been discounted.
-			if (valid && args && args.length) {
-				result = handler.bind(this.holder).pass(args)();	
+			if (valid && args!==false) {
+				var bind = (this.command) ? this.living : this.holder;
+				result = handler.bind(bind).pass(args)();	
 				if (result!==false) { 
 					if (!result) { result = true; }
 					success = true;
@@ -99,7 +131,13 @@ AdvancedParser = new Class({
 
 	},
 
+	/**
+	 * Takes a syntax string and converts it into arguments.
+	 */
 	extractArguments: function(syntax, line) {
+
+		//If there is no syntax, just return the string unaltered.
+		if (syntax=="*") { return line; }
 
 		//The ' is a delimiter within a tag for user-friendly syntax
 		// display.
@@ -172,7 +210,7 @@ AdvancedParser = new Class({
 		    living    = this.living,
 		    list      = [], 
 			room      = (living.get('room')) ? living.get('room').getItems()   : [],
-		    container = (obj.container) ? obj.container.getItems()             : [],
+		    container = (living.getItems()), 
 		    everyone  = (living.get('room')) ? living.get('room').getLiving()  : [],
 		    players   = (living.get('room')) ? living.get('room').getPlayers() : [];
 
@@ -242,7 +280,10 @@ AdvancedParser = new Class({
 
 	},
 
-	findAnyObject: function(words, parser) {
+	/**
+	 * Tries to find a match with anything in the environment.
+	 */
+	findAnyObject: function(words) {
 		var list = [];
 		if (this.holder.container) {
 			list.combine(this.holder.container.getItems());
@@ -254,7 +295,11 @@ AdvancedParser = new Class({
 		return this.checkList(list, words);
 	},
 
+	/**
+	 * Checks a list of items to see if they match a given string of words.
+	 */
 	checkList: function(list, words) {
+
 		if (!list.length || !list || !words) { return false; }
 		if (!list.each) { list = [list]; } //Splat
 
@@ -268,6 +313,7 @@ AdvancedParser = new Class({
 		});
 
 		return match;
+
 	}
 
 });

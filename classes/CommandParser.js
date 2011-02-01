@@ -1,3 +1,9 @@
+/**
+ * Think of this file as the basic interface all command parsers need to
+ * present.  It's separated from AdvancedParser in case someone wants to
+ * implement their own blend without worrying about affecting the rest of
+ * the codebase in strange ways.
+ */
 CommandParser = new Class({
 
 	realParser: false,
