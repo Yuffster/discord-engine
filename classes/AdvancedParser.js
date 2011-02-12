@@ -41,7 +41,6 @@ AdvancedParser = new Class({
 	},
 
 	set_syntax: function(pattern, handler) {
-		sys.puts("Setting syntax as "+pattern);
 		handler = handler || this.execute;
 		this.add_command(this.command, pattern, handler);
 	},

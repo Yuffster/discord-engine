@@ -133,7 +133,6 @@ Living = new Class({
 	},
 
 	setRoom: function(room) {
-		sys.puts("Setting the room of "+this.get('short')+" to "+room.get('short'));
 		//Remove the object from any room it may be in.
 		if (this.get('room')) {
 			this.get('room').removeLiving(this);
@@ -147,7 +146,6 @@ Living = new Class({
 	},
 
 	setLocation: function(path) {
-		sys.puts("Setting location of "+this.get('short')+" to "+path);
 		//If we've been passed a room object, use that.
 		if (path.addLiving) { return this.setRoom(path); }
 		var room = this.world.getRoom(path);
@@ -156,7 +154,6 @@ Living = new Class({
 
 	//moveTo includes tracking which players are where.
 	moveTo: function(path) {
-		sys.puts("Moving "+this.get('short')+" to "+path);
 		if (path.path) { this.setRoom(room); }
 		else { this.setLocation(path); }
    	},

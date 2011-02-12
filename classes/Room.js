@@ -47,7 +47,6 @@ Room = new Class({
 	},
 
 	addLiving: function(living) {
-		sys.puts("Adding "+living.get('short')+" to "+this.get('short'));
 		if (living.player){
 			this.addPlayer(living);
 		} else {
