@@ -70,9 +70,12 @@ Room = new Class({
 
 	getLiving: function(name) {
 		if (!name) {
-			living = Array.clone(this.living);
-			living.combine(this.get('players'));
-			return living;
+			var objs = [];
+			this.living.each(function(npc) {
+				objs.push(npc);
+			});
+			objs.combine(this.get('players'));
+			return objs;
 		}
 		var player = this.getPlayer(name);
 		if (player) { return player; }
@@ -219,7 +222,7 @@ Room = new Class({
 
 	add_living: function(path) {
 		var npc = this.world.loadNPC(path);
-		npc.set('room', this);
+		npc.moveTo(this);
 	},
 
 	//add an item view inside the room desc. LPC naming style.
