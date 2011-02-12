@@ -1,4 +1,4 @@
-exports.command = new Class({
+exports.main = new Class({
 
 	Extends: Command,
 

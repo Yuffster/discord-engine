@@ -15,9 +15,9 @@ Room = new Class({
 	//The zone object.
 	zone: null,
 
-	initialize: function(world) {
-		this.world   = world;
-		this.create();
+	initialize: function(world, path) {
+		this.path   = path;
+		this.world  = world;
 	},
 
 	load_item: function(path) {
@@ -35,7 +35,6 @@ Room = new Class({
 
 	removePlayer: function(player) {
 		delete(this.players[player.name.toLowerCase()]);
-		sys.puts(this.getPlayer(player.name.toLowerCase()));
 	},
 
 	removeLiving: function(living) {
@@ -45,6 +44,17 @@ Room = new Class({
 		} else {
 			this.living.erase(living);
 		}
+	},
+
+	addLiving: function(living) {
+		sys.puts("Adding "+living.get('short')+" to "+this.get('short'));
+		if (living.player){
+			this.addPlayer(living);
+		} else {
+			this.addNPC(living);
+		}
+		living.room = this;
+		living.location = this.path;
 	},
 
 	getPlayer: function(name) {

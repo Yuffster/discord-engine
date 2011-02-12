@@ -144,28 +144,31 @@ World = new Class({
 		var that = this;
 		if (!this.rooms[path]) {
 			var room = this.loadModule(this.roomPath+path);
+			if (!room) { log_error("Room not found for "+path); }
 			if (room) {
-				this.rooms[path]      = new room(this);
-				this.rooms[path].path = path;
+				this.rooms[path] = new room(this, path);
+				this.rooms[path].create();
 				this.rooms[path].zone = this.getZone(this.rooms[path].zoneName);
-			}
+			} 
 		} return this.rooms[path];
 	},
 
 	getCommand: function(command) {
+		//No argument passed?  No command for you!
 		if (!command) return;
 		var that = this;
 		if (!this.commands[command]) {
 			/* First check the world, then check the engine. */
 			var world  = that.worldPath+this.commandPath+command; 
 			var engine = that.enginePath+this.commandPath+command;
-			this.loadFile([world, engine], function(e,com) {
-				if (!com || !com.periodical) {
-					log_error(
-						"Command '"+command+"' couldn't be loaded ["+com+"]."
-					);
-				} else { that.commands[command] = new com(that); }
-			}, {'sync':true, 'rootPath':true});
+			var com = this.loadModule([world,engine], {rootPath:true});
+			if (!com) {
+				log_error(
+					"Command '"+command+"' couldn't be loaded ["+com+"]."
+				);
+			} else {
+				that.commands[command] = new com(command);
+			}
 		} return this.commands[command];
 	},
 
@@ -260,6 +263,10 @@ World = new Class({
 
 	loadModule: function(path, opts) {
 
+		/**
+		 * If an array of paths is passed, each path will be checked one after
+		 * another until either one succeeds or they all fail.
+		 */
 		var fallbacks = [];
 		if (path.each) {
 			if (path.length==0) return;

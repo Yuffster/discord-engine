@@ -4,6 +4,8 @@ Living = new Class({
 
 	Implements: [Events, Options, Container, CombatStandard, Visible, CommandParser],
 
+	player: false,
+
 	//The name of the living when seen in a list of things.
 	short: null,
 
@@ -131,12 +133,12 @@ Living = new Class({
 	},
 
 	setRoom: function(room) {
-		if (this.get('room') && this.player) this.get('room').removePlayer(this);
-		else if (this.get('room')) this.get('room').removeLiving(this);
-		this.room = room;
-		if (this.player) this.room.addPlayer(this);
-		else this.room.addNPC(this);
-		this.location = this.room.path;
+		sys.puts("Setting the room of "+this.get('short')+" to "+room.get('short'));
+		//Remove the object from any room it may be in.
+		if (this.get('room')) {
+			this.get('room').removeLiving(this);
+		}
+		room.addLiving(this);
 	},
 	
 	getRoom: function() {
@@ -145,21 +147,18 @@ Living = new Class({
 	},
 
 	setLocation: function(path) {
+		sys.puts("Setting location of "+this.get('short')+" to "+path);
+		//If we've been passed a room object, use that.
+		if (path.addLiving) { return this.setRoom(path); }
 		var room = this.world.getRoom(path);
-		if (!room) {
-			log_error("Can't find room for "+path);
-			return;
-		}
-		this.setRoom(this.world.getRoom(path));
-		this.location = path;
+		this.setRoom(room);
 	},
 
 	//moveTo includes tracking which players are where.
 	moveTo: function(path) {
-		var room = this.world.getRoom(path);
-		if (!room) return false;
-		this.set('room', room);
-		return true;
+		sys.puts("Moving "+this.get('short')+" to "+path);
+		if (path.path) { this.setRoom(room); }
+		else { this.setLocation(path); }
    	},
 
 	/**
@@ -256,7 +255,7 @@ Living = new Class({
 			target = false;
 		}
 
-		var messages = message.expand(this, target);
+		var messages = (message.each) ? message : message.expand(this, target);
 
 		var my = this;
 		var me = this.get('short');
@@ -332,12 +331,15 @@ Living = new Class({
 			return this.do('move '+command);
 		} else if (com){
 			params = params.join(' ');
-			if (com.can_execute.bind(this)) {
-				out = com.execute.bind(this).pass(params,com)();
+			if (com.can_execute.bind(this)()) {
+				var params = string.split(' ');
+				params.shift();
+				//out = com.execute.bind(this)(params.join(' '));
+				out = com.parseLine(string,this,com);
 			}
 		}
 
-		var success = false;
+		var success = (out) ? true : false;
 		var caller = this;
 		this.getItems().each(function(item) {
 			if (!success && item.parseLine) {

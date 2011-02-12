@@ -10,8 +10,8 @@
  * determining where to pull files from based on configuration options and 
  * set rules.
  *
- * Note that the files within the core repository are not sufficient to run a
- * server out of the box.
+ * To quickly run a test server, you can use config.example.json, which will
+ * load the example world.
  *
  * @author Michelle Steigerwalt <msteigerwalt.com>
  * @copyright 2010 Michelle Steigerwalt
@@ -34,8 +34,6 @@ if (!config_file) {
 	process.exit();
 }
 
-onerror = function(err) { sys.puts(":("); };
-
 try {
 	config = fs.readFileSync(config_file);
 } catch (err) {
@@ -47,7 +45,7 @@ CONFIG = {};
 eval("CONFIG ="+config);
 
 if (!CONFIG) {
-	sys.puts("Could not decode config file.  Please esnure that the file is in "+
+	sys.puts("Could not decode config file.  Please ensure that the file is in "+
 	         "valid JSON format.");
 	process.exit();
 }

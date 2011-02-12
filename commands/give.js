@@ -7,7 +7,6 @@ exports.main = new Class({
 	},
 
 	execute: function(item,target) {
-
 		if (this.giveItem(item, target)) {
 			this.emit(
 				"%You hand%s "+item.get('definite')+" to %Name.",
@@ -15,7 +14,6 @@ exports.main = new Class({
 			);
 			return true;
 		} else { return true; }
-
 	}
 
 });
