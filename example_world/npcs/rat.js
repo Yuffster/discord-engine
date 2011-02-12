@@ -31,7 +31,7 @@ exports.main = new Class({
 			return;
 		}
 
-		var items = ['hat', 'monocle'];
+		var items = ['hat', 'monocle'], success=true;
 
 		items.each(function(type) {
 			
@@ -40,13 +40,17 @@ exports.main = new Class({
 					this.force(
 						"say This clearly isn't mine; I'm already holding my "+
 						"tiny "+type+"."
-					); return;
+					);
+					success=false;
+					return;
 				}
 				this.force("say My tiny "+type+", you've found it!");
 				this.force("wear tiny "+type);
 			}
 
 		}, this);
+
+		return success;
 
 	}
 

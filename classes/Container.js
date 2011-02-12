@@ -6,7 +6,8 @@ Container = new Class({
 
 	getItem: function(name) {
 		var item = false;
-		this.items.each(function(i){
+		this.get('items').each(function(i){
+			sys.puts(i.get('definite'));
 			if (!item && i.matches(name)) { item = i; }
 		});
 		return item;
@@ -14,7 +15,7 @@ Container = new Class({
 
 	countItem: function(name) {
 		var n = 0;
-		this.items.each(function(i){
+		this.get('items').each(function(i){
 			if (i.matches(name)) { n++; }
 		});
 		return n;

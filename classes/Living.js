@@ -84,6 +84,17 @@ Living = new Class({
 		}
 	},
 
+	getItems: function() {
+		var ret = [];
+		this.items.each(function(i){
+			ret.push(i);
+		});
+		this.equipped.each(function(i){
+			ret.push(i);
+		});
+		return ret;
+	},
+
 	describeInventory: function(obsv) {
 		obsv = obsv || this;
 		var lines = [];
@@ -154,7 +165,7 @@ Living = new Class({
 
 	//moveTo includes tracking which players are where.
 	moveTo: function(path) {
-		if (path.path) { this.setRoom(room); }
+		if (path.path) { this.setRoom(path); }
 		else { this.setLocation(path); }
    	},
 
@@ -403,9 +414,8 @@ Living = new Class({
 		//Remove this item from the giver's inventory.
 		this.removeItem(item);
 		target.addItem(item);
-		target.on_get(item, this);
 
-		return true;
+		return target.on_get(item, this);
 
 	},
 
