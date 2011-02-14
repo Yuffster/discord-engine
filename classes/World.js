@@ -163,9 +163,7 @@ World = new Class({
 			var engine = that.enginePath+this.commandPath+command;
 			var com = this.loadModule([world,engine], {rootPath:true});
 			if (!com) {
-				log_error(
-					"Command '"+command+"' couldn't be loaded ["+com+"]."
-				);
+				that.commands[command] = false;
 			} else {
 				that.commands[command] = new com(command);
 			}

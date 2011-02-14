@@ -7,7 +7,6 @@ Container = new Class({
 	getItem: function(name) {
 		var item = false;
 		this.get('items').each(function(i){
-			sys.puts(i.get('definite'));
 			if (!item && i.matches(name)) { item = i; }
 		});
 		return item;
