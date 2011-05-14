@@ -1,4 +1,4 @@
-require('../engine');
+require(__dirname+'/../engine');
 
 describe = function(series, obj) {
 
@@ -35,7 +35,7 @@ describe = function(series, obj) {
 assert = require('assert');
 
 (['messaging', 'advanced_parser']).each(function(test_module) {
-	require(test_module);
+	require(__dirname+"/"+test_module);
 });
 
 process.exit();
