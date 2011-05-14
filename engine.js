@@ -1,7 +1,7 @@
 sys = require('sys');
 fs  = require('fs');
-require('lib/seedrandom');
 require('classes/String');
+require('classes/Math');
 require('classes/English');
 require('classes/ANSI');
 require('classes/Styles');
