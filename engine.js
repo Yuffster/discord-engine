@@ -1,5 +1,9 @@
+ENGINE_PATH =  __dirname+'/';
+require.paths.push(ENGINE_PATH);
+require.paths.push('./');
 sys = require('sys');
 fs  = require('fs');
+require('mootools');
 require('classes/String');
 require('classes/Math');
 require('classes/English');

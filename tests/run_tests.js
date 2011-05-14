@@ -1,10 +1,4 @@
-ENGINE_PATH = __dirname+"/../";
-
-require.paths.push('../');
-require.paths.push('./');
-
-require('mootools');
-require('engine');
+require('../engine');
 
 describe = function(series, obj) {
 

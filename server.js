@@ -17,11 +17,7 @@
  * @copyright 2010 Michelle Steigerwalt
  */
 
-ENGINE_PATH = __dirname+'/';
-require.paths.push(ENGINE_PATH);
-require.paths.push('../');
-require('mootools');
-require('engine');
+require('./engine');
 
 /**
  * Parse the config file to figure out the port and world directory 
