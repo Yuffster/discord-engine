@@ -1,7 +1,7 @@
 Disco MMO Engine
 --------------------------
 
-Disco is highly expressive, object-based MMO engine written in Node.JS and MooTools.
+Disco is highly expressive, object-based MMO engine written in JavaScript on top of Node.JS and MooTools.
 
 Installation
 ==========================
