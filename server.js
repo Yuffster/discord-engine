@@ -20,7 +20,7 @@
 ENGINE_PATH = __dirname+'/';
 require.paths.push(ENGINE_PATH);
 require.paths.push('../');
-require('lib/mootools').apply(GLOBAL);
+require('mootools');
 require('engine');
 
 /**

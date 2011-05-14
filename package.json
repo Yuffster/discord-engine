@@ -1,0 +1,13 @@
+{
+	"name":"discommo-core",
+	"description":"A LP/Discworld inspired MUD server running on Node.JS and MooTools.",
+	"version":"0.1.0",
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/yuffster/disco-core"
+	},
+	"dependencies": {
+		"mootools":"1.3.2"
+	},
+	"main": "server.js"
+}

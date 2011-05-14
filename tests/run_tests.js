@@ -2,9 +2,9 @@ ENGINE_PATH = __dirname+"/../";
 
 require.paths.push('../');
 require.paths.push('./');
-require('engine');
 
-JSON.stringify = function(mess) { JSON.encode(mess); }
+require('mootools');
+require('engine');
 
 describe = function(series, obj) {
 
@@ -40,7 +40,8 @@ describe = function(series, obj) {
 
 assert = require('assert');
 
-require('messaging');
-require('advanced_parser');
+(['messaging', 'advanced_parser']).each(function(test_module) {
+	require(test_module);
+});
 
 process.exit();
