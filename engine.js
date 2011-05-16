@@ -7,7 +7,6 @@ require('mootools');
 require('classes/String');
 require('classes/Math');
 require('classes/English');
-require('classes/ANSI');
 require('classes/Styles');
 require('classes/Prompts');
 require('classes/Messages');
