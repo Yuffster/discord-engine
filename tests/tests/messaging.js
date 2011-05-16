@@ -89,11 +89,12 @@ var examples = {
 		"Jack has a broken crown, while Jill has no injuries."
 	]
 
+
 };
 
 Object.each(examples, function(expected,mess) {
 
-	expectations[mess] = function() {
+	expectations[expected.join(' / ')] = function() {
 
 		var result = mess.expand(actor, target);
 		expected.each(function(str,i) {
@@ -114,7 +115,7 @@ var untargeted = {
 
 Object.each(untargeted, function(expected,mess) {
 
-	expectations["Untargeted: "+mess] = function() {
+	expectations["Untargeted: "+expected.join(' / ')] = function() {
 
 		var result = mess.expand(actor);
 		expected.each(function(str,i) {
@@ -124,6 +125,5 @@ Object.each(untargeted, function(expected,mess) {
 	}
 
 });
-
 
 describe('message expansion', expectations);
