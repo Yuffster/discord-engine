@@ -8,7 +8,8 @@
 	},
 	"dependencies": {
 		"mootools":"1.3.2",
-		"describe":">=0.8.0"
+		"describe":">=0.8.0",
+		"string-color":">=0.8.0"
 	},
 	"author": {
 		"name": "Michelle Steigerwalt",
