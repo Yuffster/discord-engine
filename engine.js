@@ -4,6 +4,7 @@ require.paths.push('./');
 sys = require('sys');
 fs  = require('fs');
 require('mootools');
+require('string-color');
 require('classes/String');
 require('classes/Math');
 require('classes/English');
