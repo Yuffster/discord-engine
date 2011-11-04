@@ -1,10 +1,10 @@
 {
-	"name":"discommo-core",
+	"name":"discord-engine",
 	"description":"A LP/Discworld inspired MUD server running on Node.JS and MooTools.",
-	"version":"0.1.0",
+	"version":"0.2.0",
 	"repository": {
 		"type": "git",
-		"url": "http://github.com/yuffster/disco-core"
+		"url": "http://github.com/yuffster/discord-engine"
 	},
 	"dependencies": {
 		"mootools":"1.3.2",
