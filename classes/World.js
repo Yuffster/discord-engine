@@ -280,13 +280,10 @@ World = new Class({
 
 		try {
 			var mod = require(file);
-			if (mod.main) {
-				return mod.main;
+			if (mod) {
+				return mod;
 			} else {
-				var keys = 0;
-				Object.each(mod, function(k) { keys++; });
-				if (!keys) { return false; }
-				else { return mod; }
+				throw "Failed to load module: "+file;
 			}
 		} catch (e) {
 			if (fallbacks.length) {

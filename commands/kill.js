@@ -1,10 +1,6 @@
-exports.main = new Class({
+module.exports = new Class({
 
 	Extends: Command,
-
-	setup: function() {
-
-	},
 
 	execute: function(target) {
 		var target = this.room.getLiving(target);

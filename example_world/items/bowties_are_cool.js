@@ -1,7 +1,7 @@
 /**
  * Randomly generates a disco-themed item on creation.
  */
-exports.main = new Class({
+module.exports =  new Class({
 
 	Extends: Item,
 

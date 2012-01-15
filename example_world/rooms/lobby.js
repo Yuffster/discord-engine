@@ -1,4 +1,4 @@
-exports.main = new Class({
+module.exports =  new Class({
 
 	Extends: Room,
 
