@@ -3,7 +3,7 @@ require("describe");
 
 assert = require('assert');
 
-(['messaging', 'advanced_parser']).each(function(test_module) {
+(['messaging', 'advanced_parser', 'world']).each(function(test_module) {
 	require(__dirname+"/tests/"+test_module);
 });
 

@@ -5,6 +5,8 @@ Living = new Class({
 	Implements: [Events, Options, Container, CombatStandard, Visible, CommandParser],
 
 	player: false,
+	
+	guid: '',
 
 	//The name of the living when seen in a list of things.
 	short: null,
@@ -54,6 +56,7 @@ Living = new Class({
 		if (name) this.set('name', name);
 		this.startHeart();
 		this.create();
+		this.guid = String.uniqueID();
 	},
 
 	set_short: function(short) {
@@ -271,14 +274,14 @@ Living = new Class({
 		if (!this.get('room')) {
 			throw "Living "+this.get('short')+" has no room.";
 		}
-
+		
 		Object.each(this.get('room').get('living'), function(player, name) {
-			if (target && player.name == target.name) {
+			if (target && player.guid == target.guid) {
 				player.send(messages[1], style);
-			} else if (player.name != me) {
-				player.send(messages[2], style);
-			} else if (player.name == me) {
+			} else if (player.guid == my.guid) {
 				player.send(messages[0], style);
+			} else if (player.guid != my.guid) {
+				player.send(messages[2], style);
 			}
 		});
 
