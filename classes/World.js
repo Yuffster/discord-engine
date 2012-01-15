@@ -199,9 +199,12 @@ World = new Class({
 			var file = this.itemPath+path;
 			var obj  = this.loadModule(file);
 			if (!obj) { return false; }
-			//obj.implement({'path':path});
 			this.items[path] = obj;
-		} return new this.items[path]();
+		}
+		var item = new this.items[path]();
+		item.file_path = this.items[path].file_path;
+		item.game_path = path;
+		return item;
 	},
 
 	loadNPC: function(path) {
@@ -260,7 +263,7 @@ World = new Class({
 	},
 
 	loadModule: function(path, opts) {
-
+		
 		/**
 		 * If an array of paths is passed, each path will be checked one after
 		 * another until either one succeeds or they all fail.
@@ -281,6 +284,7 @@ World = new Class({
 		try {
 			var mod = require(file);
 			if (mod) {
+				mod.file_path = file;
 				return mod;
 			} else {
 				throw "Failed to load module: "+file;
@@ -291,6 +295,16 @@ World = new Class({
 			} return false;
 		}
 
+	},
+	
+	reloadModule: function(file, opts) {
+		delete(require.cache[file+'.js']);
+		this.loadModule(file, opts);
+	},
+	
+	reloadItem: function(object) {
+		delete(this.items[object.game_path]);
+		this.reloadModule(object.file_path);
 	},
 
 	/** 
