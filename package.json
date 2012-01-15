@@ -15,5 +15,8 @@
 		"name": "Michelle Steigerwalt",
 		"homepage": "http://msteigerwalt.com"
 	},
+	"scripts":{
+		"test": "node ./tests/run_tests.js"
+	},
 	"main": "engine.js"
 }

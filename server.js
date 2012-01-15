@@ -25,7 +25,7 @@ require('./engine');
  */
 var config_file = process.argv[2];
 if (!config_file) {
-	sys.puts("Config file is required. See example.config.json for more info.");
+	sys.puts("Config file is required. See config.example.json for more info.");
 	sys.puts("Usage: node ./server.js <config file>");
 	process.exit();
 }
