@@ -50,11 +50,8 @@ World = new Class({
 		});
 		this.set('name', config.name);
 		this.config      = config;
-		this.worldPath   = ENGINE_PATH+config.world_path+'/';
+		this.worldPath   = config.world_path+'/';
 		this.defaultRoom = config.start_room;
-
-		this.loadFile('initialize');
-
 		this.players     = this.players;
 		this.rooms       = this.rooms;
 		this.items       = this.items;
@@ -103,7 +100,7 @@ World = new Class({
 	},
 
 	loadPlayerData: function(player) {
-		var path = this.savePath+player.name;
+		var path = this.worldPath+this.savePath+player.name;
 		var my   = this;
 		this.loadFile(path, function(e,data) {
 			if (!data) player.set('location', my.defaultRoom);
@@ -140,8 +137,9 @@ World = new Class({
 	},
 	
 	getRoom: function(path) {
-		if (!path) return;
-		var that = this;
+		if (typeOf(path)=='object') {
+			path = path.to;
+		}
 		if (!this.rooms[path]) {
 			var room = this.loadModule(this.roomPath+path);
 			if (!room) { log_error("Room not found for "+path); }

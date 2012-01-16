@@ -161,15 +161,22 @@ Living = new Class({
 
 	setLocation: function(path) {
 		//If we've been passed a room object, use that.
-		if (path.addLiving) { return this.setRoom(path); }
+		if (path.addLiving) { 
+			this.setRoom(path);
+			return true;
+		}
 		var room = this.world.getRoom(path);
-		this.setRoom(room);
+		if (room && room.addLiving) {
+			this.setRoom(room);
+			return true;
+		} else return false;
 	},
 
 	//moveTo includes tracking which players are where.
 	moveTo: function(path) {
-		if (path.path) { this.setRoom(path); }
-		else { this.setLocation(path); }
+		if (this.setLocation(path)) {
+			return true;
+		} else return false;
    	},
 
 	/**
