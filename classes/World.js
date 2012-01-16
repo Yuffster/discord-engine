@@ -41,7 +41,7 @@ World = new Class({
 	 * object files.
 	 */
 	init: function(config) {
-		var required = ['name', 'world_path', 'start_room'];
+		var required = ['world_path', 'start_room'];
 		required.each(function(key) {
 			if (!config[key]) {
 				sys.puts("Required config option \""+key+"\" not supplied.");

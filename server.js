@@ -78,7 +78,6 @@ exports.start = function(config) {
 
 	});  
 
-	server.listen(config.port);
-	sys.puts("Now listening on "+config.port);
+	return { listen: server.listen.bind(server) };
 
 };

@@ -1,5 +1,5 @@
 {
-	"name":"discord-engine",
+	"name":"discord",
 	"description":"A LP/Discworld inspired MUD server running on Node.JS and MooTools.",
 	"version":"0.4.0",
 	"repository": {
