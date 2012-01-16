@@ -10,17 +10,16 @@
  * determining where to pull files from based on configuration options and 
  * set rules.
  *
- * To quickly run a test server, you can use config.example.json, which will
- * load the example world.
- *
  * @author Michelle Steigerwalt <msteigerwalt.com>
- * @copyright 2010 Michelle Steigerwalt
+ * @copyright 2010-2012 Michelle Steigerwalt
  */
 
 require('./engine');
+var sys = require('sys'),
+    fs  = require('fs');
 
 exports.start = function(config) {
-	
+
 	log_error = function(err) {
 		sys.puts('ERROR: '.color('red')+err);
 		if (err.stack) { sys.puts("====>"+err.stack); }
