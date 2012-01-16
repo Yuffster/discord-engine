@@ -1,5 +1,5 @@
 /**
- * Main server script for Disco mudlib.  Most of the code is still messy from
+ * Main server script for Discord mudlib.  Most of the code is still messy from
  * Node Knockout.
  *
  * This file is in charge of all the nitty gritty bits of loading all the 
@@ -19,90 +19,67 @@
 
 require('./engine');
 
-/**
- * Parse the config file to figure out the port and world directory 
- * location.
- */
-var config_file = process.argv[2];
-if (!config_file) {
-	sys.puts("Config file is required. See config.example.json for more info.");
-	sys.puts("Usage: node ./server.js <config file>");
-	process.exit();
-}
+exports.start = function(config) {
+	
+	log_error = function(err) {
+		sys.puts('ERROR: '.color('red')+err);
+		if (err.stack) { sys.puts("====>"+err.stack); }
+	}
 
-try {
-	config = fs.readFileSync(config_file);
-} catch (err) {
-	sys.puts(err);
-	process.exit();
-} 
+	var world = new World(config);
 
-CONFIG = {};
-eval("CONFIG ="+config);
+	on_error = log_error;
+	process.on('uncaughtException', log_error);
 
-if (!CONFIG) {
-	sys.puts("Could not decode config file.  Please ensure that the file is in "+
-	         "valid JSON format.");
-	process.exit();
-}
+	var net = require('net');
+	var server = net.createServer(function (stream) {
 
-log_error = function(err) {
-	sys.puts('ERROR: '.color('red')+err);
-	if (err.stack) { sys.puts("====>"+err.stack); }
-}
+		var enhanced = false;
 
-var world = new World(CONFIG);
+		stream.setEncoding('utf8');
 
-on_error = log_error;
-process.on('uncaughtException', log_error);
+		var player = new Player();
 
-var net = require('net');
-var server = net.createServer(function (stream) {
+		/* Error handling, notifies admins of errors. */
+		stream.on('uncaughtException', function (message) {
+			player.send("ERROR: ".color('red')+message);
+		});
 
-	var enhanced = false;
+		player.addEvent('output', function(message, style) {
+			if (!stream.writable) return;
+			stream.write(message.style(style).wordwrap(80)+"\r\n");
+		});
 
-	stream.setEncoding('utf8');
+		player.addEvent('guiOutput', function(obj, handler) {
+			if (!enhanced) { return false; }
+			var data = {'data':obj, 'handler':handler};
+			var json = JSON.encode(data);
+			stream.write("<!-- \n"+json+"\n-->\n");
+		});
 
-	var player = new Player();
+		player.addEvent('quit', function() { stream.end(); });
 
-	/* Error handling, notifies admins of errors. */
-	stream.on('uncaughtException', function (message) {
-		player.send("ERROR: ".color('red')+message);
-	});
+		player.ip    = stream.remoteAddress;
+		player.world = world;
 
-	player.addEvent('output', function(message, style) {
-		if (!stream.writable) return;
-		stream.write(message.style(style).wordwrap(80)+"\r\n");
-	});
+		sys.puts(player.ip+" has connected.");
 
-	player.addEvent('guiOutput', function(obj, handler) {
-		if (!enhanced) { return false; }
-		var data = {'data':obj, 'handler':handler};
-		var json = JSON.encode(data);
-		stream.write("<!-- \n"+json+"\n-->\n");
-	});
+		player.prompt(Prompts.login, "Please enter your name.");
 
-	player.addEvent('quit', function() { stream.end(); });
+		stream.on('data', function(data) {
+			if (data.trim()==">>> GUI_ON <<<") { enhanced = true; return;  }
+			else if (data.trim().match(/^>>>(.*?)<<<$/)) { return; }
+			player.onInput(data);
+		});
 
-	player.ip    = stream.remoteAddress;
-	player.world = world;
+		stream.on('end', function () {
+			player.send("Goodbye.");
+			stream.end();
+		});
 
-	sys.puts(player.ip+" has connected.");
+	});  
 
-	player.prompt(Prompts.login, "Please enter your name.");
+	server.listen(config.port);
+	sys.puts("Now listening on "+config.port);
 
-	stream.on('data', function(data) {
-		if (data.trim()==">>> GUI_ON <<<") { enhanced = true; return;  }
-		else if (data.trim().match(/^>>>(.*?)<<<$/)) { return; }
-		player.onInput(data);
-	});
-
-	stream.on('end', function () {
-		player.send("Goodbye.");
-		stream.end();
-	});
-
-});  
-
-server.listen(CONFIG.port);
-sys.puts("Now listening on "+CONFIG.port);
+};
