@@ -78,6 +78,11 @@ exports.start = function(config) {
 
 	});  
 
-	return { listen: server.listen.bind(server) };
+	return {
+		listen: function(port) {
+			console.log("Game engine listening on port", port);
+			server.listen(port);
+		}
+	};
 
 };
