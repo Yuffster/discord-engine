@@ -48,7 +48,7 @@ World = new Class({
 				process.exit();
 			}
 		});
-		this.set('name', config.name);
+		this.set('name', config.world_name);
 		this.config      = config;
 		this.worldPath   = config.world_path+'/';
 		this.defaultRoom = config.start_room;
