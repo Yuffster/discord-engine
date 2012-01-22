@@ -1,21 +1,19 @@
 Discord MMO Engine
 ========================
 
-Disco is highly expressive, text-based MMO engine written in JavaScript on top of Node.JS and MooTools.
+Discord is highly expressive, text-based MMO engine written in JavaScript on top of Node.JS and MooTools.
 
-Installation
+This is packaged as a library.  Just add `discord` to your package.json file, then type `npm install`.
+
+Usage
 ------------------------
 
-`git checkout git://github.com/Yuffster/disco-engine.git`
+Here's an example world using the Discord engine:
 
-`npm install .`
-
-`node server.js config.example.json`
-
-In another tab:
-
-`telnet localhost 8000`
-
-Once you enter the game world, type:
-
-`materialize bowties_are_cool`
+	require('discord').start({
+		world_name: 'DiscordMUD',
+		world_path: __dirname+'/world',
+		start_room: 'lobby'
+	}).listen(8000);
+	
+For more information, check out http://github.com/Yuffster/discord-example.
