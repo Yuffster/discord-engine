@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('fs'),
+    pth = require('path');
 /**
  * The World class is the main game driver.  It determines which files to load
  * and from where, stores all rooms and objects, handles loading of rooms and
@@ -50,7 +51,7 @@ World = new Class({
 		});
 		this.set('name', config.world_name);
 		this.config      = config;
-		this.worldPath   = ENGINE_PATH+config.world_path+'/';
+		this.worldPath   = require('path').join(config.world_path);
 		this.defaultRoom = config.start_room;
 		this.players     = this.players;
 		this.rooms       = this.rooms;
@@ -60,8 +61,8 @@ World = new Class({
 	},
 
 	initializeRooms: function() {
-
-		var path = this.joinPath(this.worldPath+this.roomPath);
+		
+		var path = this.joinPath(this.worldPath+'/'+this.roomPath);
 
 		//Recursive glob of all .js files in rooms/.
 		var files = this.globJS(path);
@@ -142,7 +143,7 @@ World = new Class({
 		}
 		if (!this.rooms[path]) {
 			var room = this.loadModule(this.roomPath+path);
-			if (!room) { log_error("Room not found for "+path); }
+			if (!room) { console.warn("Room not found for "+path); }
 			if (room) {
 				this.rooms[path] = new room(this, path);
 				this.rooms[path].create();
@@ -248,8 +249,8 @@ World = new Class({
 		filename = this.joinPath(filename);
 
 		//Synchronous is OK in this case because we'll be loading these files on initialization.
-		var files = [];
-		var stats = fs.statSync(filename);
+		var files = [], stats;
+		stats = fs.statSync(filename);
 		if (stats.isFile() && filename.match(/\.js$/)) {
 			files.push(filename);
 		} else if (stats.isDirectory()) {
