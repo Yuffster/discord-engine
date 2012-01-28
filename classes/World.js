@@ -62,12 +62,12 @@ World = new Class({
 
 	initializeRooms: function() {
 		
-		var path = this.joinPath(this.worldPath+'/'+this.roomPath);
-
+		var path = require('path').normalize(this.joinPath(this.worldPath+'/'+this.roomPath));
+		
 		//Recursive glob of all .js files in rooms/.
 		var files = this.globJS(path);
 
-		var patt  = new RegExp('^'+path);
+		var patt  = new RegExp('^'+path.escapeRegExp());
 
 		//File all the rooms into zones.
 		files.each(function(file) {
@@ -277,7 +277,7 @@ World = new Class({
 		if (!path) { return false; }
 
 		opts = opts || {};
-		var file = this.worldPath+path;
+		var file = require('path').normalize(this.worldPath+'/'+path);
 		if (opts.rootPath) file = path;
 
 		try {
@@ -291,7 +291,9 @@ World = new Class({
 		} catch (e) {
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);
-			} return false;
+			} 
+			log_error("Can't find module for "+file);
+			return false;
 		}
 
 	},
