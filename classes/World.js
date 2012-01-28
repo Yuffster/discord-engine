@@ -50,7 +50,7 @@ World = new Class({
 		});
 		this.set('name', config.world_name);
 		this.config      = config;
-		this.worldPath   = config.world_path+'/';
+		this.worldPath   = ENGINE_PATH+config.world_path+'/';
 		this.defaultRoom = config.start_room;
 		this.players     = this.players;
 		this.rooms       = this.rooms;
