@@ -72,7 +72,7 @@ var polisher = new Class({
 
 var world = new World({
 	name: 'test',
-	world_path: 'example_world',
+	world_path: WORLD_PATH,
 	start_room: 'lobby',
 	port: '1111'
 });
