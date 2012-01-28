@@ -15,7 +15,7 @@
  */
 
 require('./engine');
-var sys = require('sys'),
+var sys = require('util'),
     fs  = require('fs');
 
 exports.start = function(config) {
@@ -46,14 +46,15 @@ exports.start = function(config) {
 
 		player.addEvent('output', function(message, style) {
 			if (!stream.writable) return;
-			stream.write(message.style(style).wordwrap(80)+"\r\n");
+			var brk = (enhanced) ? "\\r\\n" : "\r\n";
+			stream.write(message.style(style).wordwrap(80)+brk);
 		});
 
 		player.addEvent('guiOutput', function(obj, handler) {
 			if (!enhanced) { return false; }
 			var data = {'data':obj, 'handler':handler};
 			var json = JSON.encode(data);
-			stream.write("<!-- \n"+json+"\n-->\n");
+			stream.write("<!-- \n"+json+"\n-->\n\\r\\n");
 		});
 
 		player.addEvent('quit', function() { stream.end(); });
