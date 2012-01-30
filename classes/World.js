@@ -291,8 +291,7 @@ World = new Class({
 		} catch (e) {
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);
-			} 
-			log_error("Can't find module for "+file);
+			}
 			return false;
 		}
 
