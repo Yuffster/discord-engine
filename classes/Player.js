@@ -129,6 +129,24 @@ Player = new Class({
 	/* Executed once a minute if a player hasn't typed any commands. */
 	on_idle: function(minutes) {
 
+  },
+  getDamage: function() {
+		var has_sword = false, has_nuke = false;
+		this.items.each(function(item) {
+		    if(item.short == 'sword') {
+			    has_sword = true;
+        } else if(item.short == 'nuke') {
+          has_nuke = true;
+        }
+		});
+		if(has_sword) {
+		    return 10;
+    } else if(has_nuke) {
+        return 999999;
+		} else {
+		    return this.rollStat('strength');
+		}
 	}
+
 
 });

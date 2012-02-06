@@ -12,7 +12,7 @@ var actor = new Class({
 
 var world = new World({
 	name: 'test',
-	world_path: WORLD_PATH,
+	world_path: 'example_world',
 	start_room: 'lobby',
 	port: '1111'
 });

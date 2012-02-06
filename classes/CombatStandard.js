@@ -105,11 +105,10 @@ CombatStandard = new Class({
 	},
 
 	startCombat: function(target) {
-		//No PVP yet.
-		if (target.player) {
-			this.send("You can't bring yourself to attack "+ target.get('short')+".");
-			return false;
-		}
+    if(this.room.short == "Meditation Room") {
+      this.send("Dude, this is the meditation room. Medidate!");
+      return false;
+    }
 		this.target   = target;
 		target.target = this;
 	},
