@@ -74,7 +74,9 @@ Room = new Class({
 			this.living.each(function(npc) {
 				objs.push(npc);
 			});
-			objs.combine(this.get('players'));
+			Object.each(this.get('players'), function(v,k) {
+				objs.push(v);
+			});
 			return objs;
 		}
 		var player = this.getPlayer(name);
