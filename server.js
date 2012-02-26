@@ -20,11 +20,6 @@ var sys = require('util'),
 
 exports.start = function(config) {
 
-	log_error = function(err) {
-		sys.puts('ERROR: '.color('red')+err);
-		if (err.stack) { sys.puts("====>"+err.stack); }
-	}
-
 	var world = new World(config);
 
 	on_error = log_error;
@@ -47,7 +42,8 @@ exports.start = function(config) {
 		player.addEvent('output', function(message, style) {
 			if (!stream.writable) return;
 			var brk = (enhanced) ? "\\r\\n" : "\r\n";
-			stream.write(message.style(style).wordwrap(80)+brk);
+			var str = message.style(style);
+			stream.write(str.wordwrap(80)+brk);
 		});
 
 		player.addEvent('guiOutput', function(obj, handler) {
