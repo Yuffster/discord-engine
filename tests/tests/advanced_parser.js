@@ -16,12 +16,12 @@ var brush = new Class({
 		this.add_command('scrub', 'floor');
 	},
 
-	do_polish: function(item, me) {
-		this.user.emit("You polish "+item.get('definite')+" with "+me.get('definite')+".");
+	do_polish: function(actor, item, me) {
+		actor.emit("You polish "+item.get('definite')+" with "+me.get('definite')+".");
 	},
 
-	do_rebristle: function(me) {
-		this.user.emit("%You rebristle%s "+me.get('definite'));
+	do_rebristle: function(actor, me) {
+		actor.emit("%You rebristle%s "+me.get('definite'));
 	}
 
 });
@@ -36,7 +36,7 @@ var locket = new Class({
 		this.add_command('open', '<direct:object>', 'whoah');
 	},
 
-	whoah: function(me) {
+	whoah: function(actor, me) {
 		return "There are narwhals inside!";	
 	}
 
@@ -51,8 +51,8 @@ var toothbrush = new Class({
 		this.add_command("polish", "<indirect:object> with <direct:object>");
 	},
 
-	do_polish: function(obj, me) {
-		this.user.emit("You polish "+obj.get('definite')+" with "+me.get('definite')+".");
+	do_polish: function(actor, obj, me) {
+		actor.emit("You polish "+obj.get('definite')+" with "+me.get('definite')+".");
 	}
 
 });
@@ -89,8 +89,8 @@ describe('advanced parsing', {
 	'getArgument should return string arguments': function() {
 		var parser = new brush();
 		var args = new AdvancedParser().extractArguments(
-			"<indirect:object> with <direct:object>",
-			"locket with brush"
+			"locket with brush",
+			"<indirect:object> with <direct:object>"
 		);
 		var expected = '[{"str":"locket","tag":"indirect:object"},{"str":"brush","tag":"direct:object"}]';
 		var result = JSON.encode(args);
@@ -106,7 +106,7 @@ describe('advanced parsing', {
 
 	'polish locket using brush: alternate syntax (using vs. with)': function() {
 		living.testCommand( 
-			"polish locket using brush",
+			"polish locket with brush",
 			"You polish the brass locket with the scrubbing brush."
 		);
 	},
@@ -133,19 +133,30 @@ describe('advanced parsing', {
 	},
 
 	'polish brush with toothbrush: pass through failures': function() {
-		var result = living.do("polish brush with toothbrush");
 		living.testCommand(
 			"polish brush with toothbrush",
 			"You polish the scrubbing brush with the toothbrush."
 		);
 	},
-
-	'feed strawberry to rat: <indirect:living> within room': function() {
+	
+	'take object from environment': function(){
 		var player = new Player();
 		player.name = 'trogdor';
 		player.enterWorld(world);
 		player.moveTo('lobby');
-		player.do('take strawberry');
+		player.testCommand(
+			'take strawberry',
+			"You take the strawberry."
+		);
+	},
+
+	'feed strawberry to rat: <indirect:living> within room': function() {
+		var player  = new Player();
+		player.name = 'trogdorr';
+		player.enterWorld(world);
+		player.moveTo('lobby');
+		player.do('look');
+		player.do('materialize strawberry');
 		player.testCommand(
 			'feed strawberry to rat',
 			"You feed the strawberry to the lab rat."

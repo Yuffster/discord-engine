@@ -3,7 +3,7 @@
  */
 Command = new Class({
 
-	Implements: AdvancedParser,
+	Implements: CommandParser,
 
 	//Command is filled in by the object that instantiates this object, since it
 	//knows the file name and we don't.
@@ -12,14 +12,15 @@ Command = new Class({
 	initialize: function(command) {
 		this.command = command;
 		this.init();
-		if (!this.syntax) { this.syntax = "*"; }
 		if (!this.getPatterns(this.command)) {
-			this.add_command(this.command, this.syntax, this.execute);
+			this.add_command(this.command, this.syntax || '*', this.execute);
 		}
 	},
 
 	//Should be defined by the child class.
-	init: function() { },
+	init: function() {
+		this.add_command(this.command, '*', this.execute);
+	},
 
 	execute: function() {
 

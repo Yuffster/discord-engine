@@ -20,9 +20,9 @@ module.exports = new Class({
 	/* This method will be fed all the arguments after 'to', assuming that the
 	   first bit of the command matches this object.
 	*/
-	do_feed: function(item, target) {
-		this.user.removeItem(item);
-		this.user.emit("%You feed%s "+this.get('definite')+" to %Name.", target);
+	do_feed: function(actor, item, target) {
+		actor.removeItem(item);
+		actor.emit("%You feed%s "+item.get('definite')+" to %Name.", target);
 	}
 
 });

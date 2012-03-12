@@ -11,31 +11,25 @@
  * @copyright 2010 Michelle Steigerwalt
  */
 AdvancedParser = new Class({
-
-	Implements: CommandParser,
-
-	//Format: command: { [syntaxes], method }
-	commands: {},
-
-	//Format: pattern: method
-	syntaxes: {},
-
-	//Until we're set for multiple syntaxes, this will hold us over.
-	syntax: null,
-
-	living: null, //The living object calling the command.
+	
+	command: {},
+	
+	actor: null, //The actor object calling the command.
 
 	holder: null, //The object this command is defined on.
 
-	failure_message: null,
-
+	initialize: function(actor, holder) {
+		this.actor  = actor;
+		this.holder = holder;
+	},
+	
 	/**
 	 * This method is intended to let the developer create different handlers
 	 * for different argument lists.
 	 *
 	 * Right now it just does one pattern and one handler, but it should 
 	 * eventually be more complex.
-	 */
+	 *
 	add_syntax: function(pattern, handler) {
 		this.set_syntax(pattern, handler);
 	},
@@ -44,7 +38,7 @@ AdvancedParser = new Class({
 		handler = handler || this.execute;
 		this.add_command(this.command, pattern, handler);
 	},
-
+	
 	/**
 	 * Get syntax patterns for a particular command.
 	 */
@@ -52,6 +46,10 @@ AdvancedParser = new Class({
 		commands = commands || this.commands;
 		var com = commands[command];
 		return (com) ? com.syntax : false;
+	},
+	
+	add_failure_message: function(message) {
+		this.failure_message = '';
 	},
 
 	/**
@@ -67,77 +65,57 @@ AdvancedParser = new Class({
 	 * Takes an arguments string for a command and parses out the <> syntax
 	 * arguments.  Mangled form of LPC/Discworld-based command strings.
 	 */
-	parseLine: function(line, living, holder) {
-	
-		this.failure_message = false;
-
-		holder = holder || this;
-
-		this.living = living;
-		this.holder = holder;
-
-		var words     = line.split(' ');
-		var command   = words.shift();
-
-		line = words.join(' ');
-
-		var patterns = this.getPatterns(command, holder.commands);
-		var handler  = this.getHandler(command, holder.commands);
-
-		if (!patterns || !handler) { return false; }
-
-		var result = false;
-		var success = false;
-		patterns.each(function(syntax) {
-			if (success) { return; }
-			var args = this.extractArguments(syntax, line);
-			if (args===false) { return false; }
-			var valid = true;
-			if (args.each) {
-				args.each(function(obj, i) {
-					if (!valid) { return; }
-					args[i] = this.findObject(obj.tag, obj.str);
-					if (!args[i]) {
-						valid = false;
-						var any = this.findAnyObject(obj.str);
-						if (!any) {
-							this.add_failure_message("Cannot find '"+obj.str+"'.");
-						} else {
-							this.add_failure_message(
-								"You can't do that with "+any.get('definite')+"."
-							);
-						}
-					}
-				}, this);
+	parse: function(line, syntax) {
+		
+		var args = this.extractArguments(line,syntax);
+		
+		if (args===false) { return false; }
+		
+		var valid = true, lastFail = '';
+		args.each(function(obj, i) {
+					
+			if (!valid) { return; }
+			
+			if (!obj.tag) {
+				args[i] = obj.str;
+				return;
 			}
-			//If we have arguments and the syntax hasn't been discounted.
-			if (valid && args!==false) {
-				var bind = (this.command) ? this.living : this.holder;
-				result = handler.bind(bind).pass(args)();	
-				if (result!==false) { 
-					if (!result) { result = true; }
-					success = true;
+			
+			args[i] = this.findObject(obj.tag, obj.str);
+			
+			//If we didn't find anything, it means this set of arguments are
+			//invalid for this particular command execution.  Let's see if the
+			//player is calling invalid items, or if they items are entirely
+			//nonexistent.
+			if (!args[i]) {
+				valid = false;
+				var any = this.findAnyObject(obj.str);
+				if (!any) {
+					//If no matching object is found.
+					lastFail = "Cannot find '"+obj.str+"'.";
+				} else {
+					//If a matching object is found which doesn't fit the
+					//syntax pattern.
+					lastFail = "You can't do that with "+any.get('definite')+".";
 				}
-				if (this.holder.failure_message) {
-					this.failure_mesage = this.holder.failure_message;
-					result = this.failure_message;
-				} else { success = true; }
-			} else if (!valid && this.failure_message) {
-				result = this.failure_message;
 			}
+			
 		}, this);
-
-		return result;
+		
+		//If we have arguments and the syntax hasn't been discounted.
+		if (valid) {
+			return args;
+		} else return lastFail;
 
 	},
 
 	/**
 	 * Takes a syntax string and converts it into arguments.
 	 */
-	extractArguments: function(syntax, line) {
-
+	extractArguments: function(line,syntax) {
+	
 		//If there is no syntax, just return the string unaltered.
-		if (syntax=="*") { return line; }
+		if (syntax=="*") { return [{str:line, tag:false}]; }
 
 		//The ' is a delimiter within a tag for user-friendly syntax
 		// display.
@@ -177,8 +155,6 @@ AdvancedParser = new Class({
 			sections = [line];
 		}
 
-		if (!valid) { return false; }
-
 		sections = sections.flatten();
 
 		var tags = items.filter(function(t) {
@@ -194,7 +170,7 @@ AdvancedParser = new Class({
 				valid = false; 
 				return false;
 			}
-			//Optional '* match is for implementing living-friendly syntax
+			//Optional '* match is for implementing actor-friendly syntax
 			//output.
 			var tag = tags[i].replace(/^<|('[\w]+)?>$/g, '');
 			args[i] =  {str: sec, tag: tag};
@@ -205,14 +181,18 @@ AdvancedParser = new Class({
 	},
 
 	findObject: function(tag, words) {
-
+		
+		if (words.trim().length==0) return false;
+		
+		if (!tag) return words;
+		
 		var obj       = this.holder,
-		    living    = this.living,
+		    actor     = this.actor,
 		    list      = [], 
-			room      = (living.get('room')) ? living.get('room').getItems()   : [],
-		    container = (living.getItems()), 
-		    everyone  = (living.get('room')) ? living.get('room').getLiving()  : [],
-		    players   = (living.get('room')) ? living.get('room').getPlayers() : [];
+			room      = (actor.get('room')) ? actor.get('room').getItems()   : [],
+		    container = (actor.getItems()), 
+		    everyone  = (actor.get('room')) ? actor.get('room').getLiving()  : [],
+		    players   = (actor.get('room')) ? actor.get('room').getPlayers() : [];
 
 		// A lot of reproduction of code here!  This will make it easier for people
 		// to understand exactly what each tag will return.
@@ -222,15 +202,15 @@ AdvancedParser = new Class({
 			list.combine(container);
 			list.combine(room);
 		} else if (tag == "direct:living") {
-			list.push(living);
+			list.push(actor);
 		} else if (tag == "direct:object") {
 			list.push(obj);
 		} else if (tag == "direct:player") {
-			if (living.player) { list.push(living); }
+			if (actor.player) { list.push(actor); }
 		} else if (tag=="indirect") {
 			list.combine(container);
 			list.combine(everyone);
-			list.erase(living);
+			list.erase(actor);
 			list.erase(obj);
 		} else if (tag == "indirect:object") {
 			list.combine(container).combine(room);
@@ -249,7 +229,7 @@ AdvancedParser = new Class({
 			list.combine(container);
 			list.erase(obj);
 		} else if (tag == "indirect:living") {
-			list.combine(everyone).erase(living);
+			list.combine(everyone).erase(actor);
 		} else if (tag == "indirect:player") {
 		} else if (tag == "string") {
 			return words;
@@ -268,7 +248,7 @@ AdvancedParser = new Class({
 			];
 			if (preps.contains(words)) { return words; }
 		} else {
-			log_error("Unsupported command tag: "+tag);
+			throw new Error("Unsupported command tag: "+tag);
 			return false;
 		}
 
@@ -288,9 +268,9 @@ AdvancedParser = new Class({
 		if (this.holder.container) {
 			list.combine(this.holder.container.getItems());
 		}
-		if (this.living.room) {
-			list.combine(this.living.room.getLiving());
-			list.combine(this.living.room.getItems());
+		if (this.actor.room) {
+			list.combine(this.actor.room.getLiving());
+			list.combine(this.actor.room.getItems());
 		}
 		return this.checkList(list, words);
 	},
