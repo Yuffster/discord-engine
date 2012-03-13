@@ -194,6 +194,15 @@ Room = new Class({
 			items[items.length-1] = 'and '+items.getLast();
 		} return items;
 	},
+	
+	/**
+	 * Sends a given message to everyone in the room.
+	 */
+	emit: function(message) {
+		Object.each(this.get('living'), function(l) {
+			l.send(message);
+		});
+	},
 
 	set_short: function(short) {
 		this.short = short;
