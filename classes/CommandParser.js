@@ -77,7 +77,7 @@ CommandParser = new Class({
 			if (success) { return; }
 			//If the verb provided isn't in the command verb list, skip.
 			if (!c.verbs.contains(verb)) return;
-			
+
 			//Otherwise, we have a match, so let's parse this line using
 			//this command syntax to pull out its arguments.
 			
@@ -92,6 +92,7 @@ CommandParser = new Class({
 				if (success) return;
 
 				var args = parser.parse(line, syntax);
+				
 				//We got a failure message.
 				if (typeOf(args)=='string') {
 					//It's a failure message, so we'll store it in case no
@@ -99,7 +100,7 @@ CommandParser = new Class({
 					out = args;
 				//We have arguments from this syntax, which means it's been a 
 				//match.
-				} else if (args && args.length) {
+				} else if (args && typeOf(args)=='array') {
 					//Find the handler method for this syntax and pass the
 					//arguments to it.
 					if (binding!=actor) { //This'll be removed in a bit.
