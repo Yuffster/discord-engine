@@ -10,6 +10,19 @@ String.implement({
 		if (['a','e','i','o','u'].contains(this[0])) return "an";
 		return "a";
 	},
+	
+	/**
+	 * Ensures that a given string is a "sentence" by enforcing a capital
+	 * beginning letter and a punctuation mark at the end. Will default to a
+	 * period as ending punctuation for now, until I can get the irony mark
+	 * to render correctly.
+	 */
+	makeSentence: function() {
+		var str = this.trim();
+		str = this.charAt(0).toUpperCase() + this.slice(1);
+		if (!str.match(/[?!.]$/)) str = str+'.';
+		return str;
+	},
 
 	/**
 	 * Determines the plural form of the singular short.

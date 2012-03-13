@@ -375,11 +375,11 @@ Living = new Class({
 
 		if (!out&&!success) { out = 'What?'; }
 
-		if (out && out.charAt) {
-			out.charAt(0).toUpperCase() + out.slice(1);
+		if (typeOf(out)=="string") {
+			out = out.makeSentence();
 		} else if (out && out.each) { 
 			out.each(function(ln, i) {
-				ln[i] = ln.charAt(0).toUpperCase + ln.slice(1);
+				out[i] = ln.makeSentence();
 			});
 		}
 		
