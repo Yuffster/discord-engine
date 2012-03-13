@@ -68,7 +68,7 @@ AdvancedParser = new Class({
 	parse: function(line, syntax) {
 		
 		var args = this.extractArguments(line,syntax);
-		
+
 		if (args===false) { return false; }
 		
 		var valid = true, lastFail = '';
@@ -160,21 +160,25 @@ AdvancedParser = new Class({
 		var tags = items.filter(function(t) {
 			return t.match(patt) ? true : false;
 		});
-
-		if (!tags) { return false; }
-
+		
+		//If there aren't any tags, there aren't any arguments.
+		if (!tags.length) { return []; }
+		
 		valid = true;
 		var args = [];
+		
 		sections.each(function(sec, i) {
 			if (!tags[i]) { 
 				valid = false; 
 				return false;
 			}
-			//Optional '* match is for implementing actor-friendly syntax
+			//Optional '* match is for implementing living-friendly syntax
 			//output.
 			var tag = tags[i].replace(/^<|('[\w]+)?>$/g, '');
 			args[i] =  {str: sec, tag: tag};
 		});
+		
+		if (args.length!=tags.length) valid = false;
 
 		return (valid) ? args : false;
 
