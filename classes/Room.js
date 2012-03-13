@@ -230,6 +230,10 @@ Room = new Class({
 		type = type || 'open';
 		this.exits[dir] = {to: loc, type: type};
 	},
+	
+	remove_exit: function(dir) {
+		delete(this.exits[dir]);
+	},
 
 	add_living: function(path) {
 		var npc = this.world.loadNPC(path);
