@@ -161,6 +161,10 @@ describe('advanced parsing', {
 			'feed strawberry to rat',
 			"You feed the strawberry to the lab rat."
 		);
+	},
+	
+	'room command (pull lever)': function() {
+		living.testCommand('pull lever', 'You pull the lever.');
 	}
 
 });
