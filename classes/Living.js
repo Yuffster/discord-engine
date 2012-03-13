@@ -340,45 +340,44 @@ Living = new Class({
 
 		if (aliases[command]) { command = aliases[command]; }
 
-		var com = this.world.getCommand(command);
-
 		//Check to see if it's a room exit.
 		if (this.get('room') && this.get('room').hasExit(string)){
 			return this.do('move '+ string);
 		} else if (this.get('room') && this.get('room').hasExit(command)) {
 			return this.do('move '+command);
-		} else if (com){
-			params = params.join(' ');
-			if (com.can_execute.bind(this)()) {
-				var params = string.split(' ');
-				params.shift();
-				//out = com.execute.bind(this)(params.join(' '));
-				out = com.parseLine(string,this,com);
-			}
 		}
 
 		var success = (out) ? true : false;
-		var caller = this;
-		this.getItems().each(function(item) {
+		var caller  = this;
+		
+		var callables = [];
+		callables.combine(this.getItems());
+		callables.combine(this.getRoom().getLiving());
+		callables.push(this.getRoom());
+		callables.push(this.world.getCommand(command));
+		
+		//Now we keep calling until we've received a successful execution of
+		//the command.
+		callables.each(function(item) {
 			if (!success && item.parseLine) {
 				result = item.parseLine(string, caller);
-				if (result) { out = result; }
-				if (item.failure_message) {
-					out = item.failure_message;
-				} else if (result) { success = true; }
-			} 
+				if (result) { 
+					success = result.success;
+					if (result.output) out = result.output;
+				}
+			}
 		}, this);
-
+		
 		//The commands either have to return before this point or have
 		//output that is equal to true or a string.
 		//
 		//Otherwise, the parser will treat it like an invalid command.
 
-		if (!out) { out = 'What?'; }
+		if (!out&&!success) { out = 'What?'; }
 
-		if (out.charAt) {
+		if (out && out.charAt) {
 			out.charAt(0).toUpperCase() + out.slice(1);
-		} else if (out.each) { 
+		} else if (out && out.each) { 
 			out.each(function(ln, i) {
 				ln[i] = ln.charAt(0).toUpperCase + ln.slice(1);
 			});
