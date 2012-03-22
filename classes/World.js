@@ -143,7 +143,7 @@ World = new Class({
 		}
 		if (!this.rooms[path]) {
 			var room = this.loadModule(this.roomPath+path);
-			if (!room) { console.warn("Room not found for "+path); }
+			if (!room) { log_error("Room not found for "+path); }
 			if (room) {
 				this.rooms[path] = new room(this, path);
 				this.rooms[path].create();
@@ -292,6 +292,7 @@ World = new Class({
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);
 			}
+			log_error(e);
 			return false;
 		}
 
