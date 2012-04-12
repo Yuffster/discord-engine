@@ -96,17 +96,23 @@ module.exports = new Class({
 	},
 	
 	reload_something: function(words) {
+		var andThen = "Nothing happens.", success = false;
 		if (this.world.reloadEngineModule(words)) {
 			andThen = "The core mechanics of the universe seem to be "+
 			          "different somehow.";	
-		};
-		if (this.world.reloadCommand(words)) {
+			success = true;
+		} else if (this.world.reloadCommand(words)) {
 			andThen = "The rules of '"+words+"' seem to have changed.";
 			this.send(andThen);
+			success = true;
 		}
 		this.emit("%You hop%s about mysteriously. "+andThen);
-		this.send("Sorry, the "+words+" command either can't be found or "+
-		          "isn't working. Try checking for bugs.");
+		if (!success) {
+			this.send(
+				"Sorry, the "+words+" command either can't be found or "+
+		        "isn't working. Try checking for bugs."
+			);
+		}
 	}
 	
 });

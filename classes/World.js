@@ -318,6 +318,22 @@ World = new Class({
 		return this.loadModule(game_path, opts);
 	},
 	
+	reloadEngineModule: function(file_path) {
+		var path = this.enginePath+file_path,bkup;
+		console.log(path.color('green'));
+		if (require.cache[path+'.js']) {
+			bkup = require.cache[path+'.js'];
+			delete(require.cache[path+'.js']);
+			try {
+				require(path);
+			} catch (e) {
+				require.cache[path+'.js'] = bkup;
+				return false;
+			}
+			return true;
+		}
+	},
+	
 	reloadCommand: function(command) {
 		com = this.getCommand(command);
 		if (!com) return;
