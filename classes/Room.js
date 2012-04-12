@@ -95,6 +95,7 @@ Room = new Class({
 	getExitRooms: function() {
 		var exits = {};
 		Object.each(this.exits, function(data, direction) {
+			if (!data.to) return;
 			var room = this.world.getRoom(data.to);
 			if (room) { exits[direction] = room; }
 		}, this);
