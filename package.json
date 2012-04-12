@@ -1,7 +1,7 @@
 {
 	"name":"discord",
 	"description":"A LP/Discworld inspired MUD server running on Node.JS and MooTools.",
-	"version":"0.7.1",
+	"version":"0.8.0",
 	"repository": {
 		"type": "git",
 		"url": "http://github.com/yuffster/discord-engine"
