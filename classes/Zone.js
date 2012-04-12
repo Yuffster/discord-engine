@@ -53,7 +53,6 @@ Zone = new Class({
 		//Go through the exits, calculate the coordinates for those.
 		//Mixed directions are not currently supported.
 		Object.each(room.getExitRooms(), function(room, dir) {
-			console.log("Looking for "+room);
 			var c = Array.clone(coords);
 			if (dir=='east') {
 				c[0] = c[0]+1;
