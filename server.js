@@ -18,6 +18,10 @@ require('./engine');
 var sys = require('util'),
     fs  = require('fs');
 
+log_error = function (e) {
+	console.log("ERROR:".color('red'), e.stack);
+}
+
 exports.start = function(config) {
 
 	var world = new World(config);
