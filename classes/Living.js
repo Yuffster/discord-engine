@@ -55,7 +55,6 @@ Living = new Class({
 
 	init: function(name) {
 		if (name) this.set('name', name);
-		this.startHeart();
 		this.create();
 		this.guid = String.uniqueID();
 	},
@@ -185,6 +184,7 @@ Living = new Class({
 	 * next command in the action queue will be called.
 	 */
 	startHeart: function() {
+		if (this.heartTimer) return;
 		this.heartTimer = this.beatHeart.periodical(1000, this);
 	},
 
@@ -207,6 +207,7 @@ Living = new Class({
 	 * heartbeat.
 	 */
 	stopHeart: function() {
+		console.log("GOODBYE", this.guid);
 		clearTimeout(this.heartTimer);
 		this.heartTimer = null;
 	},
@@ -320,6 +321,10 @@ Living = new Class({
 	do: function(string) {
 
 		if (!string) return;
+		if (!this.room) {
+			this.stopHeart();
+			delete(this);
+		}
 
 		string = string.trim();
 

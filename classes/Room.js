@@ -38,6 +38,7 @@ Room = new Class({
 	},
 
 	removeLiving: function(living) {
+		living.stopHeart();
 		living.room = false;
 		if (living.player) {
 			this.removePlayer(living);
@@ -47,9 +48,11 @@ Room = new Class({
 	},
 
 	addLiving: function(living) {
+		living.startHeart();
 		if (living.player){
 			this.addPlayer(living);
 		} else {
+			living.startHeart();
 			this.addNPC(living);
 		}
 		living.room = this;
