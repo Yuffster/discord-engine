@@ -205,6 +205,8 @@ AdvancedParser = new Class({
 		} else if (tag == "object") {
 			list.combine(container);
 			list.combine(room);
+		} else if (tag == "living") {
+			list.combine(everyone);
 		} else if (tag == "direct:living") {
 			list.push(actor);
 		} else if (tag == "direct:object") {
@@ -238,7 +240,7 @@ AdvancedParser = new Class({
 		} else if (tag == "string") {
 			return words;
 		} else if (tag == "number") {
-			if (words.toInt()) { return words; }
+			if (words.toInt()) { return words.toInt(); }
 		} else if (tag == "fraction") {
 			
 		} else if (tag == "preposition") {
