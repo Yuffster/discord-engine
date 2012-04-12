@@ -32,6 +32,8 @@ module.exports = new Class({
 			                             "Please check for errors.");
 		} 
 		
+		this.emit("%You wave%s %your hands about in an arcane manner.");
+		
 		if (holder instanceof Living) {
 			holder.emit("%Your "+ object.get('definite') +" disappears in a "+
 			            "cloud of smoke. "+andThen);
