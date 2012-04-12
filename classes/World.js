@@ -62,7 +62,8 @@ World = new Class({
 
 	initializeRooms: function() {
 		
-		var path = require('path').normalize(this.joinPath(this.worldPath+'/'+this.roomPath));
+		var path = require('path').normalize(this.joinPath(this.worldPath+
+			                                 '/'+this.roomPath));
 		
 		//Recursive glob of all .js files in rooms/.
 		var files = this.globJS(path);
@@ -153,7 +154,8 @@ World = new Class({
 				this.rooms[path].create();
 				this.rooms[path].game_path = path;
 				this.rooms[path].file_path = room.file_path;
-				this.rooms[path].zone = this.getZone(this.rooms[path].zoneName);
+				var zn = this.rooms[path].zoneName;
+				this.rooms[path].zone = this.getZone(zn);
 			} 
 		} return this.rooms[path];
 	},
@@ -256,7 +258,8 @@ World = new Class({
 
 		filename = this.joinPath(filename);
 
-		//Synchronous is OK in this case because we'll be loading these files on initialization.
+		//Synchronous is OK in this case because we'll be loading these files 
+		//on initialization.
 		var files = [], stats;
 		stats = fs.statSync(filename);
 		if (stats.isFile() && filename.match(/\.js$/)) {

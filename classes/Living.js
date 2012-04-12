@@ -2,7 +2,8 @@ Living = new Class({
 
 	Extends: Base,
 
-	Implements: [Events, Options, Container, CombatStandard, Visible, CommandParser],
+	Implements: [Events, Options, Container, CombatStandard, Visible, 
+	             CommandParser],
 
 	player: false,
 	
@@ -257,7 +258,8 @@ Living = new Class({
 	testCommand: function(command, expected) {
 		var result = this.do(command);
 		if (assert && assert.equal && expected) {
-			assert.equal(result, expected, "\nExpected: "+expected+"\nGot: "+result);
+			assert.equal(result, expected, "\nExpected: "+expected+
+			             "\nGot: "+result);
 		}
 		if (!expected) { return result; }
 		return (result==expected);

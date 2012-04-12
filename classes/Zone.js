@@ -35,8 +35,8 @@ Zone = new Class({
 				log_error("Can't map room: no coordinates provided.");
 				return false;
 			}
-			//This is our first room, so we'll just arbitrarily pick 0,0 as its
-			//coordinates.
+			//This is our first room, so we'll just arbitrarily pick 0,0 as
+			//its coordinates.
 			coords = [0,0,0];
 		}
 
@@ -73,7 +73,8 @@ Zone = new Class({
 
 	},
 
-	//If set to true, we'll have to walk rooms every time we want surroundings.
+	//If set to true, we'll have to walk rooms every time we want 
+	//surroundings.
 	coordinateConflict: false,
 
 	placeRoom: function (room,coords) {
@@ -83,7 +84,8 @@ Zone = new Class({
 		if (!this.map[x][y]) { this.map[x][y] = {}; }
 		var other = this.map[x][y][z];
 		if (other) {
-			log_error("Room coordinate conflict! (["+[x,y,z]+"]: "+room.path+", "+other.path+")");
+			log_error("Room coordinate conflict! (["+[x,y,z]+"]: "+
+			           room.path+", "+other.path+")");
 			this.coordinateConflict = true;
 			return;
 		} this.map[x][y][z] = room;

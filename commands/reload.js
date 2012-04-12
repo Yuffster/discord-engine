@@ -22,17 +22,22 @@ module.exports = new Class({
 		object.getContainer().removeItem(object);
 		
 		if (replacement) {
-			andThen = "A new "+replacement.get('short')+" erupts within a flash of fire to take its place.";
+			andThen = "A new "+replacement.get('short')+
+			          " erupts within a flash of fire to take its place.";
 			holder.addItem(replacement);
 		} else {
-			andThen = "A spark ignites in its place for a moment before fading away with a disappointing fizz.";
-			if (holder.send) holder.send("The object couldn't be reloaded. Please check for errors.");
+			andThen = "A spark ignites in its place for a moment before "+
+			          "fading away with a disappointing fizz.";
+			if (holder.send) holder.send("The object couldn't be reloaded. "+
+			                             "Please check for errors.");
 		} 
 		
 		if (holder instanceof Living) {
-			holder.emit("%Your "+ object.get('definite') +" disappears in a cloud of smoke. "+andThen);
+			holder.emit("%Your "+ object.get('definite') +" disappears in a "+
+			            "cloud of smoke. "+andThen);
 		} else {
-			holder.emit(object.get('definite')+" disappears in a cloud of smoke. "+andThen);
+			holder.emit(object.get('definite')+" disappears in a cloud of "+
+			            "smoke. "+andThen);
 		}
 
 	},
@@ -43,7 +48,8 @@ module.exports = new Class({
 		    andThen;
 		
 		if (success) {
-			andThen = "The world shimmers around you and seems to take on a new life.";
+			andThen = "The world shimmers around you and seems to take on a "+
+			          "new life.";
 		} else {
 			andThen = "Nothing seems to happen.";
 		}

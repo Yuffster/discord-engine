@@ -142,7 +142,8 @@ Room = new Class({
 		var exits = [];
 		Object.each(this.get('exits'), function(v,k) { exits.push(k); });
 
-		if (exits.length==0) observer.send('There are no obvious exits.', 'exits');
+		if (exits.length==0) observer.send('There are no obvious exits.',
+		                                   'exits');
 		else observer.send('Exits: '+exits.join(', '), 'exits');
 		
 		var living = this.listLiving(observer);
@@ -176,7 +177,8 @@ Room = new Class({
 			if (living.length>1) {
 				var last = living.getLast();
 				living[living.length-1] = 'and '+last;
-				living[living.length-2] = living[living.length-2].replace(/, $/, ' ');
+				living[living.length-2] = living[living.length-2]
+				                          .replace(/, $/, ' ');
 			} return living;
 		}
 	},
@@ -245,7 +247,9 @@ Room = new Class({
 	add_item: function(keyword, desc, aliases) {
 		this.desc_items[keyword] = desc;
 		var that = this;
-		Object.each(aliases, function(alias) { that.desc_items[alias] = keyword; });
+		Object.each(aliases, function(alias) { 
+			that.desc_items[alias] = keyword;
+		});
 	},
 
 	getDetail: function(item) {
@@ -257,7 +261,9 @@ Room = new Class({
 	},
 
 	getAdjacentRooms: function(range, zRange) {
-		return this.zone.getAdjacentRooms(this.getCoordinates(), range, zRange);
+		return this.zone.getAdjacentRooms(
+			               this.getCoordinates(), range, zRange
+			             );
 	},
 
 	create: function() {
