@@ -20,7 +20,7 @@ String.implement({
 	makeSentence: function() {
 		var str = this.trim();
 		str = this.charAt(0).toUpperCase() + this.slice(1);
-		if (!str.match(/[?!.]$/)) str = str+'.';
+		if (!str.match(/[?!\.]$/)) str = str+'.';
 		return str;
 	},
 

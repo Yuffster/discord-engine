@@ -214,15 +214,19 @@ Living = new Class({
 	/**
 	 * The main engine will add an event to the player object to output data.
 	 */
-	send: function(message, style) {
+	send: function(message, style, raw) {
 		if (!message) return;
 		if (!message.each) message = [message];
 		message.each(function(line) {
 			if (!line || !line.charAt) return;
-		    line = line.makeSentence();
+		    if (!raw) line = line.makeSentence();
 			this.logOutput(line);
 			this.fireEvent('output', [line,style]);
 		}, this);
+	},
+	
+	send_raw: function(message, style) {
+		this.send(message, style, true);
 	},
 
 	guiSend: function(message, handler) {

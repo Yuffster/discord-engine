@@ -37,7 +37,7 @@ Prompts = {
 	},
 
 	command: function(data) {
-		this.send("> "+data, 'prompt');
+		this.send_raw("> "+data, 'prompt');
 		this.queueCommand(data);
 	}
 
