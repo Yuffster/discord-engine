@@ -52,6 +52,10 @@ Item = new Class({
 	getDescription: function() {
 		return this.long;
 	},
+	
+	getContainer: function() {
+		return this.container;
+	},
 
 	getNoun: function() {
 		if (this.noun) return this.noun;
