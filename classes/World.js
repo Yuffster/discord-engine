@@ -138,15 +138,21 @@ World = new Class({
 	},
 	
 	getRoom: function(path) {
+
 		if (typeOf(path)=='object') {
 			path = path.to;
 		}
+		
+		if (path===undefined) console.trace();
+		
 		if (!this.rooms[path]) {
 			var room = this.loadModule(this.roomPath+path);
 			if (!room) { log_error("Room not found for "+path); }
 			if (room) {
 				this.rooms[path] = new room(this, path);
 				this.rooms[path].create();
+				this.rooms[path].game_path = path;
+				this.rooms[path].file_path = room.file_path;
 				this.rooms[path].zone = this.getZone(this.rooms[path].zoneName);
 			} 
 		} return this.rooms[path];
@@ -224,6 +230,8 @@ World = new Class({
 		var mob   = new this.npcs[path]();
 		mob.path  = path;
 		mob.world = this;
+		mob.game_path = path;
+		mob.file_path = file;
 		return mob;
 
 	},
@@ -284,6 +292,7 @@ World = new Class({
 			var mod = require(file);
 			if (mod) {
 				mod.file_path = file;
+				mod.game_path = path;
 				return mod;
 			} else {
 				throw "Failed to load module: "+file;
@@ -298,14 +307,39 @@ World = new Class({
 
 	},
 	
-	reloadModule: function(file, opts) {
-		delete(require.cache[file+'.js']);
-		this.loadModule(file, opts);
+	reloadModule: function(file_path, opts) {
+		var game_path = file_path.replace(this.worldPath, '');
+		delete(require.cache[file_path+'.js']);
+		return this.loadModule(game_path, opts);
 	},
 	
 	reloadItem: function(object) {
 		delete(this.items[object.game_path]);
 		this.reloadModule(object.file_path);
+		return this.loadItem(object.game_path);
+	},
+	
+	reloadRoom: function(object) {
+		var dislodgedPlayers = object.getPlayers();
+		delete(this.rooms[object.game_path]);
+		var success = this.reloadModule(object.file_path),
+		    newRoom = this.getRoom(object.game_path);
+		if (!success) {
+			//Let the caller know to send a message to the players about why
+			//they don't exist in physical space anymore.
+			return false;
+		} else {
+			dislodgedPlayers.each(function(l) {
+				l.moveTo(newRoom.game_path);
+			});
+			return newRoom;
+		}
+	},
+	
+	reloadNPC: function(object) {
+		delete(this.npcs[object.game_path]);
+		this.reloadModule(object.file_path);
+		return this.loadNPC(object.game_path);
 	},
 
 	/** 
