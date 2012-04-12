@@ -233,7 +233,7 @@ World = new Class({
 		mob.path  = path;
 		mob.world = this;
 		mob.game_path = path;
-		mob.file_path = file;
+		mob.file_path = this.npcs[path].file_path;
 		return mob;
 
 	},
@@ -340,9 +340,18 @@ World = new Class({
 	},
 	
 	reloadNPC: function(object) {
+		var success = this.reloadModule(object.file_path);
+		if (!success) return false;
 		delete(this.npcs[object.game_path]);
-		this.reloadModule(object.file_path);
-		return this.loadNPC(object.game_path);
+		var room = object.get('room'),
+		    replacement = this.loadNPC(object.game_path);
+		if (replacement) {
+			room.removeLiving(object);
+			room.addLiving(replacement);
+			return replacement;
+		} else {
+			return false;
+		}
 	},
 
 	/** 

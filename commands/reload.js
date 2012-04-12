@@ -61,7 +61,37 @@ module.exports = new Class({
 	},
 	
 	reload_living: function(l) {
-		this.send("ZOMG");
+		
+		this.emit(
+			"%You chant%s something under %your breath while peering at "+
+			l.get('definite')
+		);
+		
+		if (l.player && l.name == this.name) {
+			this.send("You reload yourself.");
+		}
+		
+		if (l.player) {
+			this.send(
+				l.get('definite')+" is a human, what would you reload?"
+			);
+			return false;
+		}
+		
+		var replacement = this.world.reloadNPC(l);
+		
+		if (replacement) {
+			replacement.emit(
+				"%You look%s startled as %you disappears into thin air for "+
+				"a moment."
+			 );
+		} else {
+			l.emit("%You cock%s %his at %them, confused.", this);
+			this.send(
+				"Failed to reload "+l.get('definite')+". Check for bugs!"
+			);
+		}
+		
 	}
 	
 });
