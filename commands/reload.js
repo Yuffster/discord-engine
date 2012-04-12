@@ -6,6 +6,7 @@ module.exports = new Class({
 		//Epic multiple syntaxes with different handlers action!
 		this.add_syntax('<object>', 'reload_item');
 		this.add_syntax('<living>', 'reload_living');
+		this.add_syntax('<string>', 'reload_something');
 		this.add_syntax('', 'reload_room');
 	},
 
@@ -92,6 +93,15 @@ module.exports = new Class({
 			);
 		}
 		
+	},
+	
+	reload_something: function(words) {
+		var andThen = "Nothing happens.";
+		if (this.world.reloadCommand(words)) {
+			andThen = "The rules of '"+words+"' seem to have changed.";
+			this.send(andThen);
+		}
+		this.emit("%You hop%s about mysteriously. "+andThen);
 	}
 	
 });

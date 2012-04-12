@@ -169,11 +169,13 @@ World = new Class({
 			var world  = that.worldPath+this.commandPath+command; 
 			var engine = that.enginePath+this.commandPath+command;
 			var com = this.loadModule([world,engine], {rootPath:true});
+			var file_path = com.file_path;
 			if (!com) {
 				that.commands[command] = false;
 			} else {
 				that.commands[command] = new com(command);
 			}
+			that.commands[command].file_path = file_path;
 		} return this.commands[command];
 	},
 
@@ -314,6 +316,14 @@ World = new Class({
 		var game_path = file_path.replace(this.worldPath, '');
 		delete(require.cache[file_path+'.js']);
 		return this.loadModule(game_path, opts);
+	},
+	
+	reloadCommand: function(command) {
+		com = this.getCommand(command);
+		if (!com) return;
+		delete(this.commands[command]);
+		delete(require.cache[com.file_path+'.js']);
+		return true;
 	},
 	
 	reloadItem: function(object) {
