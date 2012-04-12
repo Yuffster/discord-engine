@@ -19,7 +19,8 @@ var sys = require('util'),
     fs  = require('fs');
 
 log_error = function (e) {
-	console.log("ERROR:".color('red'), e.stack);
+	console.log("ERROR:".color('red'), e );
+	console.log(e.stack || console.trace());
 }
 
 exports.start = function(config) {
