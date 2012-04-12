@@ -219,7 +219,7 @@ Living = new Class({
 		if (!message.each) message = [message];
 		message.each(function(line) {
 			if (!line || !line.charAt) return;
-		    line = line.charAt(0).toUpperCase() + line.substr(1);
+		    line = line.makeSentence();
 			this.logOutput(line);
 			this.fireEvent('output', [line,style]);
 		}, this);
