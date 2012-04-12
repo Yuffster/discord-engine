@@ -96,12 +96,13 @@ module.exports = new Class({
 	},
 	
 	reload_something: function(words) {
-		var andThen = "Nothing happens.";
 		if (this.world.reloadCommand(words)) {
 			andThen = "The rules of '"+words+"' seem to have changed.";
 			this.send(andThen);
 		}
 		this.emit("%You hop%s about mysteriously. "+andThen);
+		this.send("Sorry, the "+words+" command either can't be found or "
+		          "isn't working. Try checking for bugs.");
 	}
 	
 });
