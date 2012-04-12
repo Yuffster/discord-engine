@@ -207,7 +207,6 @@ Living = new Class({
 	 * heartbeat.
 	 */
 	stopHeart: function() {
-		console.log("GOODBYE", this.guid);
 		clearTimeout(this.heartTimer);
 		this.heartTimer = null;
 	},
