@@ -35,6 +35,16 @@ var Locket = new Class({
 
 }), locket = new Locket();
 
+var Strawberry = new Class({
+	
+	Extends: Item,
+	
+	create: function() {
+		this.set_short('strawberry');
+	}
+	
+});
+
 var Polisher = new Class({
 
 	Extends: Living,
@@ -70,38 +80,38 @@ describe('item counts', {
 	
 	'one of an item shows up as one': function() {
 		var guy = getGuy();
-		guy.do('materialize strawberry');
+		guy.addItem(new Strawberry());
 		guy.testCommand('inventory', 'You are carrying a strawberry.');
 	},
 
 	'between 2 and 19 of an item should show up as the number': function() {
 		var guy = getGuy();
-		guy.do('materialize strawberry');
+		guy.addItem(new Strawberry());
 		for (var i=2;i<=19;i++) {
-			guy.do('materialize strawberry');
+			guy.addItem(new Strawberry());
 			guy.testCommand('inventory', 'You are carrying '+i.toWord()+' strawberries.');
 		};	
 	},
 
 	'between 20 and 100 of an item should show up as dozens': function() {
 		var guy = getGuy();
-		(20).times(function() { guy.do('materialize strawberry'); });
+		(20).times(function() { guy.addItem(new Strawberry()); });
 		guy.testCommand('inventory', 'You are carrying dozens of strawberries.');
-		(80).times(function() { guy.do('materialize strawberry'); });
+		(80).times(function() { guy.addItem(new Strawberry()); });
 		guy.testCommand('inventory', 'You are carrying dozens of strawberries.');
 	},
 
 	'between 101 and 200 of an item should show up as over a hundred': function() {
 		var guy = getGuy();
-		(101).times(function() { guy.do('materialize strawberry'); });
+		(101).times(function() { guy.addItem(new Strawberry()); });
 		guy.testCommand('inventory', 'You are carrying over a hundred strawberries.');
-		(99).times(function() { guy.do('materialize strawberry'); });
+		(99).times(function() { guy.addItem(new Strawberry()); });
 		guy.testCommand('inventory', 'You are carrying over a hundred strawberries.');
 	},
 
 	'>100 of an item should show up as hundreds': function() {
 		var guy = getGuy();
-		(201).times(function() { guy.do('materialize strawberry'); });
+		(201).times(function() { guy.addItem(new Strawberry()); });
 		guy.testCommand('inventory', 'You are carrying hundreds of strawberries.');
 	}
 
