@@ -93,19 +93,33 @@ World = new Class({
 	/**
 	 * Adds the player to the world.
 	 */
-	addPlayer: function(playerName, stream) {
-		player = new Player(playerName);
-		player.set('stream', stream);
-		player.set('world') = this;
+	addPlayer: function(player) {
+		player.world = this;
 		this.players[player.name.toLowerCase()] = player;
 		this.announce(player.name+" has entered the world.");
-		redis.hgetall(player.name, "save", function(e,d) {
-			player.loadData(d);
+		this.loadPlayerData(player);
+	},
+	
+	loadPlayerData: function(player) {
+		var path = this.worldPath+this.savePath+player.name;
+		var my   = this;
+		this.loadFile(path, function(e,data) {
+			if (!data) player.set('location', my.defaultRoom);
+			else player.loadData(data);
+			player.force('look');
 		});
 	},
 
-	savePlayer: function(player, data) {
-		redis.hset( player.name, "save", JSON.encode(player.dump()) );
+	savePlayer: function(player) {
+		var file = this.worldPath+this.savePath+player.name+'.js';
+		var dump = player.dump();
+		if (!dump) return false;
+		var json = JSON.encode(dump);
+		fs.writeFile(file, json, function (e) {
+  			if (e) { log_error(e); }
+			player.send("Game data saved.");
+			player.fireEvent('save');
+		});
 	},
 
 	removePlayer: function(player) {
