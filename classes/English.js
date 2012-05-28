@@ -202,7 +202,7 @@ Number.implement({
 			return [
 				'twenty', 'thirty', 'forty', 'fifty', 'sixty',
 				'seventy', 'eighty', 'ninety'
-			][tens-2]+'-'+ones.toWord();
+			][tens-2]+((ones>0) ? '-'+ones.toWord() : '');
 		} else if (n<1000) {
 			var hundreds = Math.floor(n/100);
 			var tens = n%100;
