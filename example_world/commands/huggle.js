@@ -8,7 +8,7 @@ module.exports =  new Class({
 
 	execute: function(target) {
 		this.emit(
-			"%You huggle%s "+target.get('definite')+".",
+			"%You huggle%s "+target.get('definite'),
 			target
 		);
 		return true;
