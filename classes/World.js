@@ -1,5 +1,6 @@
-var fs = require('fs'),
-    pth = require('path');
+var fs    = require('fs'),
+    pth   = require('path'),
+	redis = require('redis').createClient();
 /**
  * The World class is the main game driver.  It determines which files to load
  * and from where, stores all rooms and objects, handles loading of rooms and
@@ -74,9 +75,7 @@ World = new Class({
 		files.each(function(file) {
 			file = file.replace(patt, '').replace(/\.js$/, '');
 			var room = this.getRoom(file);
-			if (!room) {
-				return;
-			}
+			if (!room) { return; }
 			var zone = this.getZone(room.get('zoneName'));
 			var coords = zone.addRoom(room);
 		}, this);
@@ -94,38 +93,27 @@ World = new Class({
 	/**
 	 * Adds the player to the world.
 	 */
-	addPlayer: function(player) {
-		player.world = this;
+	addPlayer: function(playerName, stream) {
+		player = new Player(playerName);
+		player.set('stream', stream);
+		player.set('world') = this;
 		this.players[player.name.toLowerCase()] = player;
 		this.announce(player.name+" has entered the world.");
-		this.loadPlayerData(player);
-	},
-
-	loadPlayerData: function(player) {
-		var path = this.worldPath+this.savePath+player.name;
-		var my   = this;
-		this.loadFile(path, function(e,data) {
-			if (!data) player.set('location', my.defaultRoom);
-			else player.loadData(data);
-			player.force('look');
+		redis.hgetall(player.name, "save", function(e,d) {
+			player.loadData(d);
 		});
 	},
 
-	savePlayer: function(player) {
-		var file = this.worldPath+this.savePath+player.name+'.js';
-		var dump = player.dump();
-		if (!dump) return false;
-		var json = JSON.encode(dump);
-		fs.writeFile(file, json, function (e) {
-  			if (e) { log_error(e); }
-			player.send("Game data saved.");
-			player.fireEvent('save');
-		});
+	savePlayer: function(player, data) {
+		redis.hset( player.name, "save", JSON.encode(player.dump()) );
 	},
 
 	removePlayer: function(player) {
-		delete(this.players[player.name.toLowerCase()]);
+		player.getRoom().removePlayer(player);
 		this.announce(player.name+" has left the world.");
+		delete(player);
+		delete(this.players[player.name.toLowerCase()]);
+		player.fireEvent('quit');
 	},
 
 	getPlayer: function(name) {
@@ -305,9 +293,7 @@ World = new Class({
 		} catch (e) {
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);
-			}
-			log_error(e);
-			return false;
+			} return false;
 		}
 
 	},
