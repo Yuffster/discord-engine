@@ -52,7 +52,6 @@ Room = new Class({
 		if (living.player){
 			this.addPlayer(living);
 		} else {
-			living.startHeart();
 			this.addNPC(living);
 		}
 		living.room = this;
@@ -153,7 +152,8 @@ Room = new Class({
 		if (living) {
 			lines.push(
 				living.join(', ') +
-				(living.length>1 ? " are" : " is") + " standing here."
+				//We're looking at length>2 because the observer doesn't count.
+				(this.getLiving().length>2 ? " are" : " is") + " standing here."
 			);
 		}
 
@@ -161,7 +161,7 @@ Room = new Class({
 		if (items.length>0){
 			lines.push(
 				items.join(', ') +
-				(items.length>1 ? " are" : " is")
+				(this.getItems().length>1 ? " are" : " is")
 				+ " on the ground."
 			);
 		}
@@ -173,32 +173,14 @@ Room = new Class({
 		var living = [];
 		this.get('living').each(function(live) {
 			if (live!=observer) {
-				living.push(live.get('indefinite'));
+				living.push(live);
 			}
 		});
-		if (living.length>0) {
-			if (living.length>1) {
-				var last = living.getLast();
-				living[living.length-1] = 'and '+last;
-				living[living.length-2] = living[living.length-2]
-				                          .replace(/, $/, ' ');
-			} return living;
-		}
+		return (living.length) ? this.listItems(living) : false;
 	},
 
 	listExits: function(observer) {
 
-	},
-
-	listItems: function() {
-		var items = [];
-		this.get('items').each(function(item) {
-			var str = item.get('indefinite') || 'a thing';
-			items.push(str);
-		});
-		if (items.length>1) {
-			items[items.length-1] = 'and '+items.getLast();
-		} return items;
 	},
 	
 	/**
@@ -260,13 +242,15 @@ Room = new Class({
 	},
 
 	getCoordinates: function() {
+		if (!this.zone) return false;
 		return this.zone.getCoordinates(this);
 	},
 
 	getAdjacentRooms: function(range, zRange) {
+		if (!this.zone) return [];
 		return this.zone.getAdjacentRooms(
-			               this.getCoordinates(), range, zRange
-			             );
+		 	this.getCoordinates(), range, zRange
+		);
 	},
 
 	create: function() {

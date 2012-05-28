@@ -6,6 +6,9 @@ Container = new Class({
 
 	getItem: function(name) {
 		var item = false;
+		if (this.getLiving && this.getLiving(name)) {
+			item = this.getLiving(name);
+		}
 		this.get('items').each(function(i){
 			if (!item && i.matches(name)) { item = i; }
 		});
@@ -39,14 +42,16 @@ Container = new Class({
 		if (!items) items = this.items;
 		var clump = {};
 		var shorts = {};
+		
 		items.each(function(i) {
 			var short = i.get('short');
 			if (clump[short]) { clump[short]++; }
 			else {
 				clump[short]  = 1;
-				shorts[short] = i;
+				shorts[short] = short;
 			}
 		});
+		
 		var strs = [];
 		Object.each(clump, function(n,short) {
 			var i   = shorts[short];
