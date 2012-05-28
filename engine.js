@@ -14,6 +14,7 @@ require('./classes/CommandParser');
 require('./classes/AdvancedParser');
 require('./classes/Visible');
 require('./classes/Command');
+require('./classes/Attributes');
 require('./classes/Container');
 require('./classes/Combat');
 require('./classes/CombatStandard');
