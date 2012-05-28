@@ -10,15 +10,8 @@ var actor = new Class({
 
 });
 
-var world = new World({
-	name: 'test',
-	world_path: WORLD_PATH,
-	start_room: 'lobby',
-	port: '1111'
-});
-
 var living = new actor();
-living.world = world;
+living.world = makeWorld();
 living.moveTo('lobby');
 
 describe('world engine', {

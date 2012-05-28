@@ -17,7 +17,7 @@ var Strawberry = new Class({
 
 function getGuy() {
 	var guy = new Living();
-	guy.world = world;
+	guy.world = makeWorld();
 	guy.moveTo('lobby');
 	return guy;
 };

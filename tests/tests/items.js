@@ -47,14 +47,7 @@ var Polisher = new Class({
 
 }), living = new Polisher();
 
-var world = new World({
-	name: 'test',
-	world_path: WORLD_PATH,
-	start_room: 'lobby',
-	port: '1111'
-});
-
-living.world = world;
+living.world = makeWorld();
 living.moveTo('lobby');
 living.addItem(brush);
 living.addItem(locket);

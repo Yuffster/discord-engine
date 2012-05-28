@@ -70,15 +70,8 @@ var polisher = new Class({
 
 });
 
-var world = new World({
-	name: 'test',
-	world_path: WORLD_PATH,
-	start_room: 'lobby',
-	port: '1111'
-});
-
 var living = new polisher();
-living.world = world;
+living.world = makeWorld();
 living.moveTo('lobby');
 living.addItem(new brush());
 living.addItem(new locket());
@@ -142,7 +135,7 @@ describe('advanced parsing', {
 	'take object from environment': function(){
 		var player = new Player();
 		player.name = 'trogdor';
-		player.enterWorld(world);
+		player.enterWorld(makeWorld());
 		player.moveTo('lobby');
 		player.testCommand(
 			'take strawberry',
@@ -153,7 +146,7 @@ describe('advanced parsing', {
 	'feed strawberry to rat: <indirect:living> within room': function() {
 		var player  = new Player();
 		player.name = 'trogdorr';
-		player.enterWorld(world);
+		player.enterWorld(makeWorld());
 		player.moveTo('lobby');
 		player.do('look');
 		player.do('materialize strawberry');
