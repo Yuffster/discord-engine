@@ -52,11 +52,17 @@ Container = new Class({
 			var i   = shorts[short];
 			var obj = this.getItem(i);
 			if (!obj) { return []; }
+			var plural = obj.get('plural');
 			if (n==1) {
 				strs.push(obj.get('indefinite'));
-			} else {
-				var plural = obj.get('plural');
+			} else if(n<20) {
 				strs.push(n.toWord()+' '+plural);
+			} else if (n>19&&n<101) {
+				strs.push('dozens of '+plural);
+			} else if (n>100&&n<201) {
+					strs.push('over a hundred '+plural);
+			} else if (n>200) {
+				strs.push('hundreds of '+plural);
 			}
 		}, this);
 		return strs;
