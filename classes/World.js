@@ -1,6 +1,5 @@
 var fs    = require('fs'),
-    pth   = require('path'),
-	redis = require('redis').createClient();
+    pth   = require('path');
 /**
  * The World class is the main game driver.  It determines which files to load
  * and from where, stores all rooms and objects, handles loading of rooms and
