@@ -159,13 +159,13 @@ Living = new Class({
 		return this.room;
 	},
 
-	setLocation: function(path) {
+	setLocation: function(path,opts) {
 		//If we've been passed a room object, use that.
 		if (path.addLiving) { 
 			this.setRoom(path);
 			return true;
 		}
-		var room = this.world.getRoom(path);
+		var room = this.world.getRoom(path,opts);
 		if (room && room.addLiving) {
 			this.setRoom(room);
 			return true;
@@ -173,8 +173,8 @@ Living = new Class({
 	},
 
 	//moveTo includes tracking which players are where.
-	moveTo: function(path) {
-		if (this.setLocation(path)) {
+	moveTo: function(path,opts) {
+		if (this.setLocation(path,opts)) {
 			return true;
 		} else return false;
    	},
@@ -472,6 +472,10 @@ Living = new Class({
 
 	respondTo: function(player, keyword) {
 		if (this.talkMenu) this.world.enterMenu(this.talkMenu, player, this);
+	},
+
+	sendError: function(e) {
+		this.send("ERROR: "+e+"\n\n"+e.stack);
 	},
 
 /**

@@ -139,7 +139,9 @@ World = new Class({
 		});
 	},
 	
-	getRoom: function(path) {
+	getRoom: function(path,opts) {
+
+		opts = opts || {};
 
 		if (typeOf(path)=='object') {
 			path = path.to;
@@ -148,7 +150,7 @@ World = new Class({
 		if (path===undefined) console.trace();
 		
 		if (!this.rooms[path]) {
-			var room = this.loadModule(this.roomPath+path);
+			var room = this.loadModule(this.roomPath+path, opts);
 			if (!room) { log_error("Room not found for "+path); }
 			if (room) {
 				this.rooms[path] = new room(this, path);
@@ -161,7 +163,8 @@ World = new Class({
 		} return this.rooms[path];
 	},
 
-	getCommand: function(command) {
+	getCommand: function(command,opts) {
+		opts = opts || {};
 		//No argument passed?  No command for you!
 		if (!command) return;
 		var that = this;
@@ -169,7 +172,7 @@ World = new Class({
 			/* First check the world, then check the engine. */
 			var world  = that.worldPath+this.commandPath+command; 
 			var engine = that.enginePath+this.commandPath+command;
-			var com = this.loadModule([world,engine], {rootPath:true});
+			var com = this.loadModule([world,engine], {rootPath:true,onFailure:opts.onFailure});
 			var file_path = com.file_path;
 			if (!com) {
 				that.commands[command] = false;
@@ -203,11 +206,11 @@ World = new Class({
 		}
 	},
 
-	loadItem: function(path) {
+	loadItem: function(path,opts) {
 		if (!path) { return; }
 		if (!this.items[path]) {
 			var file = this.itemPath+path;
-			var obj  = this.loadModule(file);
+			var obj  = this.loadModule(file,opts);
 			if (!obj) { return false; }
 			this.items[path] = obj;
 		}
@@ -276,7 +279,7 @@ World = new Class({
 	},
 
 	loadModule: function(path, opts) {
-		
+
 		/**
 		 * If an array of paths is passed, each path will be checked one after
 		 * another until either one succeeds or they all fail.
@@ -306,7 +309,9 @@ World = new Class({
 		} catch (e) {
 			if (fallbacks.length) {
 				return this.loadModule(fallbacks, opts);
-			} return false;
+			}
+			if (opts.onFailure) opts.onFailure(e);
+			return false;
 		}
 
 	},
@@ -319,7 +324,6 @@ World = new Class({
 	
 	reloadEngineModule: function(file_path) {
 		var path = this.enginePath+file_path,bkup;
-		console.log(path.color('green'));
 		if (require.cache[path+'.js']) {
 			bkup = require.cache[path+'.js'];
 			delete(require.cache[path+'.js']);
@@ -333,24 +337,24 @@ World = new Class({
 		}
 	},
 	
-	reloadCommand: function(command) {
-		com = this.getCommand(command);
+	reloadCommand: function(command, opts) {
+		com = this.getCommand(command, opts);
 		if (!com) return;
 		delete(this.commands[command]);
 		delete(require.cache[com.file_path+'.js']);
 		return true;
 	},
 	
-	reloadItem: function(object) {
+	reloadItem: function(object, opts) {
 		delete(this.items[object.game_path]);
-		this.reloadModule(object.file_path);
+		this.reloadModule(object.file_path, opts);
 		return this.loadItem(object.game_path);
 	},
 	
-	reloadRoom: function(object) {
+	reloadRoom: function(object, opts) {
 		var dislodgedPlayers = object.getPlayers();
 		delete(this.rooms[object.game_path]);
-		var success = this.reloadModule(object.file_path),
+		var success = this.reloadModule(object.file_path, opts),
 		    newRoom = this.getRoom(object.game_path);
 		if (!success) {
 			//Let the caller know to send a message to the players about why
@@ -364,12 +368,12 @@ World = new Class({
 		}
 	},
 	
-	reloadNPC: function(object) {
+	reloadNPC: function(object, opts) {
 		var success = this.reloadModule(object.file_path);
 		if (!success) return false;
 		delete(this.npcs[object.game_path]);
 		var room = object.get('room'),
-		    replacement = this.loadNPC(object.game_path);
+		    replacement = this.loadNPC(object.game_path, opts);
 		if (replacement) {
 			room.removeLiving(object);
 			room.addLiving(replacement);

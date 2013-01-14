@@ -15,7 +15,10 @@ module.exports = new Class({
 		    //We need to know if this object is in the room or in an inventory.
 		var holder = object.getContainer(),
 		    //Attempt to get a new item to replace it.
-		    replacement = this.world.reloadItem(object),
+		    error  = false,
+		    replacement = this.world.reloadItem(object, {
+		    	onFailure: function(e) { holder.sendError(e); }
+		    }),
 		    //We'll store some text here to append to the destruction message.
 		    andThen;
 		
@@ -29,10 +32,8 @@ module.exports = new Class({
 		} else {
 			andThen = "A spark ignites in its place for a moment before "+
 			          "fading away with a disappointing fizz.";
-			if (holder.send) holder.send("The object couldn't be reloaded. "+
-			                             "Please check for errors.");
 		} 
-		
+
 		this.emit("%You wave%s %your hands about in an arcane manner.");
 		
 		if (holder instanceof Living) {
@@ -43,11 +44,22 @@ module.exports = new Class({
 			            "smoke. "+andThen);
 		}
 
+		if (error) {
+			if (holder.send) {
+				holder.send("The object couldn't be reloaded. "+
+			                "Please check for errors.");
+				holder.send(error);
+			}
+		}
+
 	},
 	
 	reload_room: function() {
 		
-		var success = this.world.reloadRoom(this.get('room')),
+		var player = this,
+		    success = this.world.reloadRoom(this.get('room'), {
+		    	onFailure: function(e) { player.sendError(e); }
+		    }),
 		    andThen;
 		
 		if (success) {
@@ -56,7 +68,7 @@ module.exports = new Class({
 		} else {
 			andThen = "Nothing seems to happen.";
 		}
-		
+
 		this.emit("%You snap%s %your fingers. "+andThen);
 		
 	},
@@ -79,7 +91,10 @@ module.exports = new Class({
 			return false;
 		}
 		
-		var replacement = this.world.reloadNPC(l);
+		var player = this,
+		    replacement = this.world.reloadNPC(l, {
+		    	onFailure: function(e) { player.sendError(e); }
+		    });
 		
 		if (replacement) {
 			replacement.emit(
@@ -96,12 +111,19 @@ module.exports = new Class({
 	},
 	
 	reload_something: function(words) {
-		var andThen = "Nothing happens.", success = false;
-		if (this.world.reloadEngineModule(words)) {
+
+		var player  = this,
+			andThen = "Nothing happens.",
+			success = false,
+			opts    = {
+				onFailure: function(e) { player.sendError(e); }
+			};
+
+		if (this.world.reloadEngineModule(words, opts)) {
 			andThen = "The core mechanics of the universe seem to be "+
 			          "different somehow.";	
 			success = true;
-		} else if (this.world.reloadCommand(words)) {
+		} else if (this.world.reloadCommand(words, opts)) {
 			andThen = "The rules of '"+words+"' seem to have changed.";
 			this.send(andThen);
 			success = true;
