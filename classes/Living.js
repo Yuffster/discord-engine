@@ -362,7 +362,7 @@ Living = new Class({
 		
 		var callables = [];
 		callables.combine(this.getItems());
-		callables.combine(this.getRoom().getLiving());
+		if (this.getRoom()) callables.combine(this.getRoom().getLiving());
 		callables.push(this.getRoom());
 		callables.push(this.world.getCommand(command));
 		
