@@ -74,8 +74,7 @@ exports.start = function(config) {
 		});
 
 		stream.on('end', function () {
-			player.send("Goodbye.");
-			stream.end();
+			player.disconnect();
 		});
 
 	});  

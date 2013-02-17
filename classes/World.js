@@ -63,7 +63,7 @@ World = new Class({
 	initializeRooms: function() {
 		
 		var path = require('path').normalize(this.joinPath(this.worldPath+
-			                                 '/'+this.roomPath));
+											 '/'+this.roomPath));
 		
 		//Recursive glob of all .js files in rooms/.
 		var files = this.globJS(path);
@@ -100,7 +100,7 @@ World = new Class({
 	},
 	
 	loadPlayerData: function(player) {
-		var path = this.worldPath+this.savePath+player.name;
+		var path = this.savePath+player.name;
 		var my   = this;
 		this.loadFile(path, function(e,data) {
 			if (!data) player.set('location', my.defaultRoom);
@@ -115,7 +115,7 @@ World = new Class({
 		if (!dump) return false;
 		var json = JSON.encode(dump);
 		fs.writeFile(file, json, function (e) {
-  			if (e) { log_error(e); }
+			if (e) { log_error(e); }
 			player.send("Game data saved.");
 			player.fireEvent('save');
 		});
@@ -123,7 +123,6 @@ World = new Class({
 
 	removePlayer: function(player) {
 		player.getRoom().removePlayer(player);
-		this.announce(player.name+" has left the world.");
 		delete(player);
 		delete(this.players[player.name.toLowerCase()]);
 		player.fireEvent('quit');
@@ -355,7 +354,7 @@ World = new Class({
 		var dislodgedPlayers = object.getPlayers();
 		delete(this.rooms[object.game_path]);
 		var success = this.reloadModule(object.file_path, opts),
-		    newRoom = this.getRoom(object.game_path);
+			newRoom = this.getRoom(object.game_path);
 		if (!success) {
 			//Let the caller know to send a message to the players about why
 			//they don't exist in physical space anymore.
@@ -373,7 +372,7 @@ World = new Class({
 		if (!success) return false;
 		delete(this.npcs[object.game_path]);
 		var room = object.get('room'),
-		    replacement = this.loadNPC(object.game_path, opts);
+			replacement = this.loadNPC(object.game_path, opts);
 		if (replacement) {
 			room.removeLiving(object);
 			room.addLiving(replacement);
@@ -415,7 +414,7 @@ World = new Class({
 				if (fallbacks.length>0) {
 					my.loadFile(fallbacks, callback, opts);
 				} else {
-					log_error("File not found: "+path);
+					log_error("File not found: "+file);
 				}
 			} else {
 				try { eval('data='+raw); }
