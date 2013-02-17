@@ -78,15 +78,15 @@ Player = new Class({
 		this.save = dump.save;
 		this.loadStats(dump.stats);
 		dump.items.each(function(itm) {
-			if (!itm.path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
-			var item = this.world.loadItem(itm.path);
+			if (!itm.game_path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
+			var item = this.world.loadItem(itm.game_path);
 			if (!item) return false;
 			item.loadData.bind(item)(itm);
 			this.addItem(item);
 		}, this);
 		dump.equipped.each(function(itm) {
-			if (!itm.path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
-			var item = this.world.loadItem(itm.path);
+			if (!itm.game_path) log_error(this.name+"'s item "+(itm.short)+" has failed to load!");
+			var item = this.world.loadItem(itm.game_path);
 			if (!item) return false;
 			item.loadData(itm);
 			this.equipItem(item);
@@ -102,8 +102,12 @@ Player = new Class({
 	},
 
 	disconnect: function() {
-		this.world.removePlayer(this);
-		this.fireEvent('quit');
+		if(this.world.getPlayer(this.name)){
+			this.emit("%You leave%s the game.");
+			this.world.savePlayer(this);
+			this.world.removePlayer(this);
+			this.fireEvent('quit');
+		}
 	},
 
 	/* This method is executed when a character is created. */

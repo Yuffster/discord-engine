@@ -12,6 +12,7 @@ Prompts = {
 		}
 		if (this.world.getPlayer(name)) {
 			this.send(name+" is already connected.  Please try another name.");
+            return;
 		}
 		this.name = name;
 		this.prompt(Prompts.gender, "Are you (M)ale or (F)emale?");

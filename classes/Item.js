@@ -12,8 +12,6 @@ Item = new Class({
 
 	noun: null,
 
-	path: null,
-
 	container: null,
 	
 	set_short: function(desc) {
@@ -108,7 +106,7 @@ Item = new Class({
 			'aliases': this.aliases,
 			'noun': this.noun,
 			'determinate': this.determinate,
-			'path': this.path,
+			'game_path': this.game_path,
 			'save': this.save
 		};
 		return obj;
