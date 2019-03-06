@@ -1,5 +1,5 @@
 ENGINE_PATH =  __dirname+'/';
-sys = require('sys');
+sys = require('util');
 fs  = require('fs');
 require('mootools');
 require('string-color');
